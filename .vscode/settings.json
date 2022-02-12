@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "csapp.h": "c",
-        "signal.h": "c"
+        "signal.h": "c",
+        "stdio.h": "c",
+        "cstdio": "cpp"
     }
 }
