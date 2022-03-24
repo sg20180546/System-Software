@@ -12,7 +12,7 @@ int main(int argc,char** argv){
         exit(0);
     }
     niters=atoi(argv[1]);
-
+    // alloca(4);
     Pthread_create(&tid1,NULL,thread,&niters);
     Pthread_create(&tid2,NULL,thread,&niters);
     Pthread_join(tid1,NULL);

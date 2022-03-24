@@ -3,6 +3,7 @@
         "csapp.h": "c",
         "signal.h": "c",
         "stdio.h": "c",
-        "cstdio": "cpp"
+        "cstdio": "cpp",
+        "unistd.h": "c"
     }
 }

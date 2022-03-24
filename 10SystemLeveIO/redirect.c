@@ -9,6 +9,7 @@ int main(){
     Read(fd2,&c,1);
     Dup2(fd2,fd1); //fd1 redirect to fd2
     Read(fd1,&c,1);
-    printf("c=%c\n",c);
+    printf("c=%c\n",c); //c=o
+    // unlink("foobar.txt");
     exit(0);
 }
