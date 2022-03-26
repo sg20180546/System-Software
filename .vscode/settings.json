@@ -4,6 +4,8 @@
         "signal.h": "c",
         "stdio.h": "c",
         "cstdio": "cpp",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "type.h": "c",
+        "common.h": "c"
     }
 }

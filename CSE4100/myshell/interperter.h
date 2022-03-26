@@ -5,7 +5,10 @@
 #define SPACE ' '
 #define ENTER 10
 
-void interpreter(char* cmdline,char* buffer);
+#include "type.h"
+#include "common.h"
 
+void interpreter(char* cmdline,char* buffer);
+char* builtin_command_list[MAXARGS];
 
 #endif
