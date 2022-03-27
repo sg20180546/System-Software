@@ -6,6 +6,9 @@
         "cstdio": "cpp",
         "unistd.h": "c",
         "type.h": "c",
-        "common.h": "c"
+        "common.h": "c",
+        "builtin.h": "c",
+        "interperter.h": "c",
+        "typeinfo": "c"
     }
 }

@@ -6,17 +6,17 @@
 #define CMD_VARIABLE 10;
 
 command command_list[]={
-    {"cat",NULL},
-    {"cd",NULL},
-    {"clear",NULL},
-    {"echo",NULL},
-    {"exit",NULL},
-    {"ls",NULL},
-    {"mkdir",NULL},
-    {"pwd",NULL},
-    {"rmdir",NULL},
-    {"touch",NULL},
-    {"variable",NULL}
+    {"cat",NULL,NULL},
+    {"cd",NULL,NULL},
+    {"clear",NULL,NULL},
+    {"echo",NULL,NULL},
+    {"exit",NULL,NULL},
+    {"ls",NULL,NULL},
+    {"mkdir",NULL,NULL},
+    {"pwd",NULL,NULL},
+    {"rmdir",NULL,NULL},
+    {"touch",NULL,NULL},
+    {"variable",NULL,NULL}
 };
 
 int num_builtin_command=9;

@@ -20,7 +20,7 @@ void SIGCHILDhander();
 // void touch();
 // void cat();
 // void echo(char* buf,char** options,char* string);
-void variable();
+// void variable();
 // void exit();
 
 void clear();

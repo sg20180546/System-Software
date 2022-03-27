@@ -2,6 +2,9 @@
 #include "type.h"
 #include "builtin.h"
 #include "common.h"
+#include "execute.h"
+
+
 // #include "myshell.h"
 static void parser();
 
@@ -15,22 +18,22 @@ BACKGROUDN EXECUTING - parent do parent, child do child
 
 void interpreter(char* cmdline,char* bgbuffer){
     status err;
-    command command[MAXARGS];
+    command command_execute_list[MAXARGS];
     unsigned short pipen=0;
     bool is_background;
     char* buf;
     strcpy(buf,cmdline);
-    parser(buf,command,pipen,&is_background,&err);
+    parser(buf,command_execute_list,pipen,&is_background,&err);
  
         switch (err)
         {
         case OK:
             if(is_background.v){
-                
+                execute_commands(command_execute_list,pipen);
+                return;
             }
-            // wait child process
-            wait(NULL);
-            /* code */
+            execute_commands(command_execute_list,pipen);
+            while(waitpid(NULL,NULL,NULL)>0);
             break;
         case SYNTAXERR:
             break;
@@ -45,28 +48,35 @@ void interpreter(char* cmdline,char* bgbuffer){
 // find builtin name by binary search
 // need to make builtin main function, excecutable object file
 // builtin list-> in complile time? run time?
-static void parser(char* cmdline,command* _command,unsigned short* pipen,bool* is_background,status* err){
+static void parser(char* cmdline,command* cmd_exec_ls,unsigned short* pipen,bool* is_background,status* err){
     unsigned int i=0;
     while(cmdline[i++]!=ENTER){
         while(cmdline[i++]!=SPACE);
+        unsigned int j=i;
 
-        is_variable(&cmdline[i]);
-        command* cbuf=find_shell_command(cmdline);
+        while( (cmdline[j++]!=SPACE));
+
+        command* cbuf=find_shell_command(&cmdline[j]);
         if(cbuf==NULL){
             *err=NOCOMMANDERR;
             return;
         }
-        _command[*pipen]=*cbuf;
-        // find_arguments(&cmdline[i]);
+        cmd_exec_ls[*pipen]=*cbuf;
 
-        while(cmdline[i++]!=SPACE);
+
+        find_arguments(cbuf,&cmdline[i],pipen);
+
+        while(cmdline[i++]!=SPACE)
 
         if(cmdline[i]==PIPE) *pipen++;
+
+
+
 
         // how to check and save command efficeintly, not using strncmp? -> binary search
         // pipeline -> how to write other proccess file descriptor 0 of file table, whcih is stdin?
         // |-> because child copy same file table with parent, writing to 1 is can wathced in other process
-
+        i=j;
         //binarysearch
 
         // if not found , found abc=test
@@ -79,80 +89,82 @@ static void parser(char* cmdline,command* _command,unsigned short* pipen,bool* i
 
 static command* find_shell_command(char* cmdline){
         unsigned short low=0,high=num_builtin_command,mid;
+        command* cmd=NULL;
+        bool is_static_command;
+        is_static_command.v=0;
         while(low<=high){
             mid=(low+high)/2;
 
-            int c=cmdline[0]-command_list[mid].name[0];
+            int c=cmdline[0]-command_list[mid].static_cmd->name[0];
 
             if(c==0){
-              if(!strncmp(cmdline,command_list[mid].name,sizeof(command_list[mid].name))){
-                  return &command_list[mid];
+              if(!strncmp(cmdline,command_list[mid].static_cmd->name,sizeof(command_list[mid].static_cmd->name))){
+                  cmd=malloc(sizeof(command));
+                  cmd->f=STATIC;
+                  cmd->static_cmd=malloc(sizeof(static_command));
+                  strcpy(cmd->static_cmd->name,command_list[mid].static_cmd->name);
+                  is_static_command.v=1;
               }  
             } 
             else if(c>0) low=mid+1;
             else high=mid-1;
 
         }
-        // char* pos_variable=cmdline;
-        // unsigned short i=1;
-        // while( (cmdline[i]!=ENTER)&&(cmdline[i]=SPACE) ){
-        //     if(cmdline[i]=='='){
-        //         unsigned short j=i;
-                
-        //         // strcpy(command_list[CMD_VARIABLE].argue,)
+        
+        if(cmd==NULL){
+            cmd=is_variable(cmdline);
+        }
 
-                
-        //     }
-        //     i++;
-        // }
-
-        return NULL;
+        return cmd;
 }
 
 
-static void is_variable(char* cmdline){
+static command* is_variable(char* cmdline){
+    
+    command* cmd=NULL;
     unsigned short i=0;
     unsigned short j;
     char key[MAXLINE];
     char value[MAXLINE];
     while( cmdline[i++]=='='){
         if((cmdline[i]==SPACE)&&(cmdline[i]==ENTER)){
-            return;
+            return NULL;
         }
-        strncpy(key[MAXLINE],cmdline[0],i-1);
+        // strncpy(key[MAXLINE],cmdline[0],i-1);
         j=i+1;
     }
-    if(cmdline[j]==SPACE) return;
+    if(cmdline[j]==SPACE) return NULL;
     while(cmdline[j++]!=SPACE);
-    strncpy(value,cmdline[i],j-i);
+    // strncpy(value,cmdline[i],j-i);
+    cmd=malloc(sizeof(command));
+    cmd->f=VARIABLE;
+    cmd->variable=malloc(sizeof(variable));
+    cmd->variable->key=malloc(i);
+    cmd->variable->value=malloc(j-i);
+    strncpy(cmd->variable->key,cmdline[0],i-1);
+    strncpy(cmd->variable->value,cmdline[i],j-i);
 
-    if(find_shell_command(key)) return;
-
-    allocate_variable(key,value);
+    return cmd;
 }
 
 
 // when exit free variablew
-static void allocate_variable(char* key,char* value){
+// static void allocate_variable(command* var){
 
-    if(num_variable==variable_list_size||variable_list_size==1){
-        variable_list_size=variable_list_size<<1;
-        variable_list=malloc(sizeof(variable*)*variable_list_size);
-    }
-    variable_list[num_variable]=malloc(sizeof(variable));
-    strcpy(variable_list[num_variable]->key,key);
-    strcpy(variable_list[num_variable]->value,value);
+//     if(num_variable==variable_list_size||variable_list_size==1){
+//         variable_list_size=variable_list_size<<1;
+//         variable_list=malloc(sizeof(variable*)*variable_list_size);
+//     }
+//     variable_list[num_variable++]=var;
 
-    return;
-}
+//     return;
+// }
 
-void free_all_variable(){
+void free_all_command(command** cmd){
 
 }
 
 
-static void find_arguments(char *cmdline){
+static void find_arguments(command* cmd,char *cmdline,int *pipen){
 
 }
-
-
