@@ -9,10 +9,10 @@ int main(){
     while(1){
     
         // if there is terminated background process, result
-        write(1,">",1);
-        fgets(cmdline,MAXLINE,stdin);
-        if(feof(stdin)) exit(0);
-        interpreter(cmdline,background_buffer);
+        // write(1,">",1);
+        // fgets(cmdline,MAXLINE,stdin);
+        // if(feof(stdin)) exit(0);
+        interpreter(cmdline);
         // if there is terminated background process, [1]+ Done\n with result
     }
 }

@@ -8,7 +8,7 @@
 #include "type.h"
 #include "common.h"
 
-void interpreter(char* cmdline,char* buffer);
+void interpreter(char* cmdline);
 char* builtin_command_list[MAXARGS];
 
 #endif

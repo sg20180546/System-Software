@@ -10,18 +10,19 @@ typedef struct _bool{
 }bool;
 
 typedef enum _status{
-    OK,SYNTAXERR,NOCOMMANDERR
+    OK,BUFFERING,SYNTAXERR,NOCOMMANDERR
 } status;
 
 typedef enum _flag{
     STATIC,VARIABLE
-}flag;
+}cmd_flag;
 
 
 typedef struct _static_command{    
     char* name;
     char** arguments;
-    function* func;
+    function* buitlin_function;
+    // void (*argument_checker)(char*,char*);
 } static_command;
 
 typedef struct _function{
@@ -34,7 +35,10 @@ typedef struct _variable{
 }variable;
 
 typedef struct _command{
-    flag f;
+    cmd_flag f;
+    command* redirectto;
+    command* redirectfrom;
+    bool is_redirecting;
     union
     {
         static_command* static_cmd;
