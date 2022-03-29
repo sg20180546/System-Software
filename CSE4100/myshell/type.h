@@ -18,16 +18,11 @@ typedef enum _flag{
 }cmd_flag;
 
 
-typedef struct _static_command{    
+typedef struct _static_command{
     char* name;
-    char** arguments;
-    function* buitlin_function;
     // void (*argument_checker)(char*,char*);
 } static_command;
 
-typedef struct _function{
-    char* source_file;
-} function;
 
 typedef struct _variable{
     char* key;
@@ -35,6 +30,7 @@ typedef struct _variable{
 }variable;
 
 typedef struct _command{
+    char** arguments;
     cmd_flag f;
     command* redirectto;
     command* redirectfrom;

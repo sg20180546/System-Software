@@ -9,6 +9,7 @@
         "common.h": "c",
         "builtin.h": "c",
         "interperter.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "execute.h": "c"
     }
 }

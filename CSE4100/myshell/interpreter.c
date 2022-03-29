@@ -31,31 +31,34 @@ void interpreter(char* cmdline){
     char buf[MAXLINE];
     strcpy(buf,cmdline);
     
-    if(status==BUFFERING) parser(buf,NULL,last_command,&is_background,&status);
+    if(status==BUFFERING) parser(buf,last_command,last_command,&is_background,&status);
     else parser(buf,first_command,last_command,&is_background,&status);
     
-
+    pid_t pid;
+    if((pid=fork())==0){
         switch (status)
         {
         case OK:
-            if(is_background.v){
-                execute_commands(first_command,pipen);
-                return;
-            }
-            execute_commands(first_command,pipen);
-            while(waitpid(NULL,NULL,NULL)>0);
+            execute_commands(first_command);
+            // if background job, wait at child
+            if(is_background.v) while(waitpid(0,NULL,NULL)>0);
             break;
         case BUFFERING:
             goto l1;
             break;
         case SYNTAXERR:
             break;
-
         case NOCOMMANDERR:
             break;
         default:
             break;
         }
+    }
+    // if foreground job, wait at parent
+    if(pid!=0&&!is_background.v){
+        while(waitpid(pid,NULL,0)>0);
+    }
+         
 }
 
 // find builtin name by binary search
@@ -63,7 +66,7 @@ void interpreter(char* cmdline){
 // builtin list-> in complile time? run time?
 static void parser(char* cmdline,command* first_command,command* last_command,bool* is_background,status* status){
     unsigned int pos=0;
-    command* previous_command=NULL;
+    command* previous_command=first_command;
     while(cmdline[pos]!=ENTER){
 
         while( (cmdline[pos++]==SPACE));

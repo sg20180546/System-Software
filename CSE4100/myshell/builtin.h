@@ -1,3 +1,5 @@
+#ifndef _TYPE_H_
+#define _TYPE_H_
 #include "type.h"
 #include "common.h"
 
@@ -22,16 +24,4 @@ command command_list[]={
 int num_builtin_command=9;
 
 
-void initialize_command();
-
-// {
-//     DIR* streamp;
-//     struct dirent* dep;
-
-//     streamp=opendir(BUILTIN_PATH);
-    
-
-//     // how to make buitlin command array?
-// }
-
-
+#endif

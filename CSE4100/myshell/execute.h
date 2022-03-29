@@ -1,8 +1,8 @@
 #ifndef _EXECUTE_H_
-
+#define _EXECUTE_H_
 #include "common.h"
 #include "type.h"
 
-void execute_commands(command** cmd_list,unsigned short pipen);
+void execute_commands(command* first_cmd);
 
 #endif
