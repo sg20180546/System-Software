@@ -6,7 +6,7 @@ void execute_commands(command* cur_cmd){
     pid_t pid;
     pipe(fds);
     // flush stdin
-
+    if(cur_cmd==NULL) return;
     
     if((pid=fork())==0){
         dup2(fds[0],STDIN_FILENO);
@@ -15,30 +15,18 @@ void execute_commands(command* cur_cmd){
             close(fds[0]); close(fds[0]);
         } 
         
-        char path[10]="/bin/";
+        char path[20]="/bin/";
         if(cur_cmd->f==STATIC) strcat(path,cur_cmd->static_cmd->name);
-
-        execve(path,cur_cmd->arguments,NULL);
+        if(cur_cmd->f==CUSTOM) strcat(BUILTIN_PATH,cur_cmd->cstm_cmd->name);
+        if(execve(path,cur_cmd->arguments,NULL)<0){
+            exit(33);
+            // error handling
+        }
     }
     
-    if(cur_cmd->redirectto) execute_commands(cur_cmd->redirectto);
+    execute_commands(cur_cmd->redirectto);
 
     close(fds[0]); close(fds[1]);
     // if background return; and set signal hander
-}
-
-
-static void execute_command(command* cmd,int* readfd,int* writefd){
-    if(fork()==0){
-        char buf[MAXLINE];
-        // read(readfd,buf,)
-        dup2(*readfd,STDIN_FILENO); dup2(*writefd,STDOUT_FILENO);
-        if(cmd->f==STATIC){
-            
-        }else{
-
-        }
-
-    }
 }
 

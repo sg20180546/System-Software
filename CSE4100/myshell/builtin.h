@@ -1,27 +1,28 @@
-#ifndef _TYPE_H_
-#define _TYPE_H_
+#ifndef _BUILTIN_H_
+#define _BUILTIN_H_
 #include "type.h"
 #include "common.h"
 
 // command* builtin_command;
 
-#define CMD_VARIABLE 10;
+#define CMD_VARIABLE 11
 
 command command_list[]={
-    {"cat",NULL,NULL},
-    {"cd",NULL,NULL},
-    {"clear",NULL,NULL},
-    {"echo",NULL,NULL},
-    {"exit",NULL,NULL},
-    {"ls",NULL,NULL},
-    {"mkdir",NULL,NULL},
-    {"pwd",NULL,NULL},
-    {"rmdir",NULL,NULL},
-    {"touch",NULL,NULL},
-    {"variable",NULL,NULL}
+    {0,NULL,STATIC,NULL,NULL,NULL,{"cat"}},
+    {0,NULL,STATIC,NULL,NULL,NULL,{"cd"}},
+    {0,NULL,STATIC,NULL,NULL,NULL,{"clear"}},
+    {0,NULL,STATIC,NULL,NULL,NULL,{"echo"}},
+    {0,NULL,STATIC,NULL,NULL,NULL,{"exit"}},
+    {0,NULL,CUSTOM,NULL,NULL,NULL,{"jobs"}},
+    {0,NULL,STATIC,NULL,NULL,NULL,{"ls"}},
+    {0,NULL,STATIC,NULL,NULL,NULL,{"mkdir"}},
+    {0,NULL,STATIC,NULL,NULL,NULL,{"pwd"}},
+    {0,NULL,STATIC,NULL,NULL,NULL,{"rmdir"}},
+    {0,NULL,STATIC,NULL,NULL,NULL,{"touch"}},
+    {0,NULL,STATIC,NULL,NULL,NULL,{"variable"}}
 };
 
-int num_builtin_command=9;
+int num_builtin_command=CMD_VARIABLE-1;
 
 
 #endif

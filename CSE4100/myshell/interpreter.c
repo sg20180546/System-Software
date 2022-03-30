@@ -6,18 +6,26 @@
 
 
 // #include "myshell.h"
-static void parser();
+
 
 /*
 FOREGROUND EXECUTING - suspend parent process, until forked child process send SIGCHILD
 
 BACKGROUDN EXECUTING - parent do parent, child do child
 */
+static status parser(char* cmdline,command* first_command,command* last_command,bool* is_background);
+static status find_shell_command(char* cmdline,int* pos,command* cbuf);
+static command* is_variable(char* cmdline,int* pos);
+static status find_arguments(command* cmd,char *cmdline,unsigned int* pos);
 
+void sigchild_handler(int sig){
+
+}
 
 
 void interpreter(char* cmdline){
 
+    signal(SIGCHLD,sigchild_handler);
 
     l1:
     write(1,">",1);
@@ -31,17 +39,24 @@ void interpreter(char* cmdline){
     char buf[MAXLINE];
     strcpy(buf,cmdline);
     
-    if(status==BUFFERING) parser(buf,last_command,last_command,&is_background,&status);
-    else parser(buf,first_command,last_command,&is_background,&status);
-    
+    if(status==BUFFERING) status=parser(buf,last_command,last_command,&is_background);
+    else status=parser(buf,first_command,last_command,&is_background);
+
     pid_t pid;
     if((pid=fork())==0){
         switch (status)
         {
         case OK:
-            execute_commands(first_command);
             // if background job, wait at child
-            if(is_background.v) while(waitpid(0,NULL,NULL)>0);
+            if(is_background.v){
+                sigset_t mask;
+                sigaddset(&mask,SIGCHLD);
+                sigprocmask(SIG_BLOCK,&mask,NULL);
+                execute_commands(first_command);
+                while(waitpid(-1,NULL,0)>0);
+                exit(0);
+            }
+            execute_commands(first_command);
             break;
         case BUFFERING:
             goto l1;
@@ -57,6 +72,10 @@ void interpreter(char* cmdline){
     // if foreground job, wait at parent
     if(pid!=0&&!is_background.v){
         while(waitpid(pid,NULL,0)>0);
+    }else{
+        running_background_jobs[running_background_jobs_rear]=malloc(strlen(buf));
+        strcpy(running_background_jobs[running_background_jobs_rear],buf);
+        running_background_jobs_rear=(running_background_jobs_rear+1)%MAXARGS;
     }
          
 }
@@ -64,16 +83,18 @@ void interpreter(char* cmdline){
 // find builtin name by binary search
 // need to make builtin main function, excecutable object file
 // builtin list-> in complile time? run time?
-static void parser(char* cmdline,command* first_command,command* last_command,bool* is_background,status* status){
+static status parser(char* cmdline,command* first_command,command* last_command,bool* is_background){
+    status status=OK;
     unsigned int pos=0;
     command* previous_command=first_command;
     while(cmdline[pos]!=ENTER){
-
-        while( (cmdline[pos++]==SPACE));
+        while(whitespace(cmdline[pos++]));
+        
+        if(cmdline[pos]==ENTER) return status;
 
         command* cbuf=NULL;
-        *status=find_shell_command(cmdline,&pos,cbuf,status);
-        if(*status!=OK) return;
+        status=find_shell_command(cmdline,&pos,cbuf);
+        if(status!=OK) return status;
         if(!first_command) first_command=cbuf;
 
         cbuf->redirectfrom=previous_command;
@@ -82,22 +103,27 @@ static void parser(char* cmdline,command* first_command,command* last_command,bo
         last_command=cbuf;
         
 
-        while(cmdline[pos++]==SPACE);
-        *status=find_arguments(cbuf,cmdline,&pos,status);
-        if(status!=OK) return;
+        if(cbuf->f==STATIC){
+            while(whitespace(cmdline[pos++]));
+            status=find_arguments(cbuf,cmdline,&pos);
+            if(status!=OK) return status;
+        }
 
-        while(cmdline[pos++]==SPACE);
 
+
+
+        while(whitespace(cmdline[pos++]));
+        
         if(cmdline[pos]==BACKGROUND){
             is_background->v=1;
-            while(cmdline[pos++]==SPACE);
+            while(whitespace(cmdline[pos++]));
             if(cmdline[pos]!=ENTER){
                 status=SYNTAXERR;
             }
-            return;
+            return status;
         }
-        else if(cmdline[pos]==PIPE){
-            *status=BUFFERING;
+        else if(cmdline[pos++]==PIPE){
+            status=BUFFERING;
         }
 
 
@@ -119,16 +145,18 @@ static void parser(char* cmdline,command* first_command,command* last_command,bo
         // if not unfound command
 
     }
+    return status;
 }
 
-static status* find_shell_command(char* cmdline,int* pos,command* cbuf,status* status){
+static status find_shell_command(char* cmdline,int* pos,command* cbuf){
+        status status=OK;
         unsigned short low=0,high=num_builtin_command,mid;
         // command* cmd=NULL;
-
+        
         while(low<=high){
             mid=(low+high)/2;
 
-            int c=cmdline[0]-command_list[mid].static_cmd->name[0];
+            int c=cmdline[*pos]-command_list[mid].static_cmd->name[0];
 
             if(c==0){
               if(!strncmp(cmdline,command_list[mid].static_cmd->name,sizeof(command_list[mid].static_cmd->name))){
@@ -138,8 +166,10 @@ static status* find_shell_command(char* cmdline,int* pos,command* cbuf,status* s
                   cbuf->static_cmd->name=malloc(sizeof(command_list[mid].static_cmd->name));
                   strcpy(cbuf->static_cmd->name,command_list[mid].static_cmd->name);
                   *pos+=sizeof(cbuf->static_cmd->name);
-                  *status=OK;
-              }  
+              }else{
+                  if( (cmdline[*pos+1]-command_list[mid].static_cmd->name[1])>0) low=mid+1;
+                  else high=mid-1;
+              }
             } 
             else if(c>0) low=mid+1;
             else high=mid-1;
@@ -148,7 +178,7 @@ static status* find_shell_command(char* cmdline,int* pos,command* cbuf,status* s
         if(cbuf==NULL){
             cbuf=is_variable(cmdline,pos);
         }
-        if(cbuf==NULL) *status=NOCOMMANDERR;
+        if(cbuf==NULL) status=NOCOMMANDERR;
         
         return status;
 }
@@ -168,8 +198,8 @@ static command* is_variable(char* cmdline,int* pos){
         j=*(pos-1);
     }
     if(cmdline[*pos++]==SPACE) return NULL;
-    while(cmdline[*pos++]!=SPACE);
-
+    while(!whitespace(cmdline[*pos++]));
+        
     // strncpy(value,cmdline[i],j-i);
     cmd=malloc(sizeof(command));
     cmd->f=VARIABLE;
@@ -199,12 +229,32 @@ void free_all_command(command** cmd){
 }
 
 
-static status* find_arguments(command* cmd,char *cmdline,int* pos,status* status){
-    if(cmdline[*pos++]!='-'){
-        status=SYNTAXERR;
-        return;
-    }
-    while((cmdline[*pos]!=ENTER)){
+static status find_arguments(command* cmd,char *cmdline,unsigned int* pos){
+    status status;
+    cmd->argc=0;
+    cmd->arguments=malloc(sizeof(char*)*MAXARGS);
+    cmd->arguments[cmd->argc++]=malloc(sizeof(cmd->static_cmd->name));
+    strcpy(cmd->arguments[0],cmd->static_cmd->name);
+    while(1){
+        if(cmdline[*pos]==PIPE||cmdline[*pos]==ENTER) break;
+        unsigned int i=*pos;
+        while(1){
+            if(cmdline[*pos]==PIPE||cmdline[*pos]==ENTER) break;
+            else if(cmdline[*pos]==SPACE) break;
+            *pos++;
+        }
+        unsigned int size=*pos-i;
+        cmd->arguments[cmd->argc++]=malloc(sizeof(size));
+        strncpy(cmd->arguments[cmd->argc],cmdline[i],size);
+        
+        // else{
 
+            // cmd->arguments[argc++]=malloc(*pos -i);
+            // strncpy(cmd->arguments[argc],cmdline[i],*pos-i-1);
+        // }
+        // *pos++;
     }
+    cmd->arguments[cmd->argc]=malloc(1);
+    cmd->arguments[cmd->argc]=NULL;
+    return status;
 }

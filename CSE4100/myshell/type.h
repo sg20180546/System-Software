@@ -1,9 +1,7 @@
 #ifndef _TYPE_H_
-#include <unistd.h>
-#include <stdio.h>
-#include <signal.h>
-
-
+#define _TYPE_H_
+#include "common.h"
+#include "type.h"
 
 typedef struct _bool{
  unsigned v:1;
@@ -14,7 +12,7 @@ typedef enum _status{
 } status;
 
 typedef enum _flag{
-    STATIC,VARIABLE
+    STATIC,VARIABLE,CUSTOM
 }cmd_flag;
 
 
@@ -23,6 +21,9 @@ typedef struct _static_command{
     // void (*argument_checker)(char*,char*);
 } static_command;
 
+typedef struct _custom_command{
+    char* name;
+}custom_command;
 
 typedef struct _variable{
     char* key;
@@ -30,15 +31,17 @@ typedef struct _variable{
 }variable;
 
 typedef struct _command{
+    unsigned short argc;
     char** arguments;
     cmd_flag f;
-    command* redirectto;
-    command* redirectfrom;
+    struct command* redirectto;
+    struct command* redirectfrom;
     bool is_redirecting;
     union
     {
         static_command* static_cmd;
-        variable* variable
+        variable* variable;
+        custom_command* cstm_cmd;
     };
 } command;
 
