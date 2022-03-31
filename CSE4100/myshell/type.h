@@ -3,6 +3,9 @@
 #include "common.h"
 #include "type.h"
 
+
+extern int num_variable;
+extern int variable_list_size;
 typedef struct _bool{
  unsigned v:1;
 }bool;
@@ -34,8 +37,8 @@ typedef struct _command{
     unsigned short argc;
     char** arguments;
     cmd_flag f;
-    struct command* redirectto;
-    struct command* redirectfrom;
+    struct _command* redirectto;
+    struct _command* redirectfrom;
     bool is_redirecting;
     union
     {
@@ -49,8 +52,7 @@ typedef struct _command{
 
 variable** variable_list;
 
-int num_variable=0;
-int variable_list_size=1;
+
 
 
 

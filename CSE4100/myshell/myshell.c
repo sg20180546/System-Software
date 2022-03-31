@@ -4,7 +4,7 @@
 int main(){
 
 
-
+    // initialize();
     while(1){
         interpreter(cmdline);
 

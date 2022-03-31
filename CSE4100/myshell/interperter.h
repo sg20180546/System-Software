@@ -11,10 +11,10 @@
 #include "type.h"
 #include "common.h"
 
-unsigned int running_background_jobs_front=0;
-unsigned int running_background_jobs_rear=0;
+unsigned int running_background_jobs_front;
+unsigned int running_background_jobs_rear;
 char* running_background_jobs[MAXARGS];
-
+void initialize();
 void interpreter(char* cmdline);
 char* builtin_command_list[MAXARGS];
 
