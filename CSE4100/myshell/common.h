@@ -6,10 +6,13 @@
 #include <signal.h>
 #include <string.h>
 #include <wait.h>
+#include <assert.h>
 #define BUILTIN_PATH "../module/"
 #define MAXARGS 16
 #define BIN "/bin/"
 #define	MAXLINE	4096
+#define a(x) assert(x)
+#define pd(x) printf("%s\n",(x))
 
 
 #endif

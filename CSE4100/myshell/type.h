@@ -14,6 +14,10 @@ typedef enum _status{
     OK,BUFFERING,SYNTAXERR,NOCOMMANDERR
 } status;
 
+typedef enum _mode{
+BACKGROUND,FOREGROUND
+}MODE;
+
 typedef enum _flag{
     STATIC,VARIABLE,CUSTOM
 }cmd_flag;
@@ -33,12 +37,12 @@ typedef struct _variable{
     char* value;
 }variable;
 
-typedef struct _command{
+struct command{
     unsigned short argc;
     char** arguments;
     cmd_flag f;
-    struct _command* redirectto;
-    struct _command* redirectfrom;
+    struct command* redirectto;
+    struct command* redirectfrom;
     bool is_redirecting;
     union
     {
@@ -46,7 +50,7 @@ typedef struct _command{
         variable* variable;
         custom_command* cstm_cmd;
     };
-} command;
+};
 
 
 

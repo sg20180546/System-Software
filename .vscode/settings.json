@@ -10,6 +10,12 @@
         "builtin.h": "c",
         "interperter.h": "c",
         "typeinfo": "c",
-        "execute.h": "c"
+        "execute.h": "c",
+        "atomic": "c",
+        "*.tcc": "c",
+        "cmath": "c",
+        "functional": "c",
+        "random": "c",
+        "type_traits": "c"
     }
 }

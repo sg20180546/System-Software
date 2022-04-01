@@ -3,6 +3,7 @@
 #include "common.h"
 #include "type.h"
 
-void execute_commands(command* first_cmd);
+int fds[2];
+void execute_commands(struct command* first_cmd);
 
 #endif
