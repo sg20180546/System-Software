@@ -16,6 +16,7 @@
         "cmath": "c",
         "functional": "c",
         "random": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "sstream": "c"
     }
 }
