@@ -42,13 +42,13 @@ int    num_builtin_command=CMD_VARIABLE-1;
 
 
 void sigchild_handler(int sig){
-
+    while(waitpid(-1,NULL,0)>0);
 }
 
   int debug=0;
 void interpreter(char* cmdline){
     pipe(fds);
-    signal(SIGCHLD,sigchild_handler);
+    
 
     l1:
     write(1,">",1);
@@ -68,7 +68,7 @@ void interpreter(char* cmdline){
 
     if(status==BUFFERING) status=parser(buf,&last_command,&last_command,&mode);
     else status=parser(buf,&first_command,&last_command,&mode);
-
+    // a(first_command->redirectto->arguments[2]==NULL);
 
     a(first_command!=NULL);
     a(last_command!=NULL);
@@ -77,16 +77,20 @@ void interpreter(char* cmdline){
         switch (status)
         {
         case OK:
+            a(mode=FOREGROUND);
             // if background job, wait at child
             if(mode==BACKGROUND){
+                pd("BACKGROUND");
                 sigset_t mask;
                 sigaddset(&mask,SIGCHLD);
                 sigprocmask(SIG_BLOCK,&mask,NULL);
                 execute_commands(first_command);
-                while(waitpid(-1,NULL,0)>0);
+
                 exit(0);
             }
+
             execute_commands(first_command);
+            exit(45);
             break;
         case BUFFERING:
             goto l1;
@@ -100,17 +104,19 @@ void interpreter(char* cmdline){
         default:
             break;
         }
-    }
-    // if foreground job, wait at parent
-    // pd("wating");
-    if(pid!=0&&mode==FOREGROUND){
-        while(waitpid(pid,NULL,0)>0);
     }else{
-        running_background_jobs[running_background_jobs_rear]=malloc(strlen(buf));
-        strcpy(running_background_jobs[running_background_jobs_rear],buf);
-        running_background_jobs_rear=(running_background_jobs_rear+1)%MAXARGS;
+        // if foreground job, wait at parent
+        // pd("wating");
+        if(pid!=0&&mode==FOREGROUND){
+            close(fds[READ_END]); close(fds[WRITE_END]);
+            while(waitpid(pid,NULL,0)>0);
+            
+        }else{
+            running_background_jobs[running_background_jobs_rear]=malloc(strlen(buf));
+            strcpy(running_background_jobs[running_background_jobs_rear],buf);
+            running_background_jobs_rear=(running_background_jobs_rear+1)%MAXARGS;
+        }
     }
-         
 }
 
 // find builtin name by binary search
@@ -119,22 +125,20 @@ void interpreter(char* cmdline){
 static status parser(char* cmdline,struct command** first_command,struct command** last_command,MODE* mode){
     status status;
     unsigned int pos=0;
-    struct command* previous_command;
+    struct command* previous_command=NULL;
 
     while(cmdline[pos]!=ENTER){
         while(whitespace(cmdline[pos])) pos++;
-        debug++;
         if(cmdline[pos]==ENTER) return status;
         struct command* cbuf;
 
 
         status=find_shell_command(cmdline,&pos,&cbuf);
-        // pd(cbuf->static_cmd->name);
         if(status!=OK) return status;
 
         if(!(*first_command)) *first_command=cbuf;
         (*last_command)=cbuf;
-
+  
         if(previous_command){
           cbuf->redirectfrom=previous_command;
           previous_command->redirectto=cbuf;  
@@ -166,10 +170,7 @@ static status parser(char* cmdline,struct command** first_command,struct command
             status=BUFFERING;
             pos++;
         }
-        if(debug==2) {
-            // printf("%c %d\n",cmdline[pos], cmdline[pos]);
-            a(cmdline[pos]==ENTER);
-        }
+
         // pd(cbuf->arguments[0]);
         // while(cmdline[i++]!=SPACE)
 
@@ -279,13 +280,11 @@ static status find_arguments(struct command** cmd,char *cmdline,unsigned int* po
     strcpy((*cmd)->arguments[0],(*cmd)->static_cmd->name);
     while(1){
 
-        // pd("loop");
+
         if(cmdline[*pos]==PIPE||cmdline[*pos]==ENTER){
             break;
         }
         unsigned int i=*pos;
-        // pd("hello 222");
-        // printf("char : %d ",cmdline[*pos]);
         while((!whitespace(cmdline[*pos])) ){
             (*pos)=(*pos)+1;
             if(cmdline[*pos]==10){
@@ -296,14 +295,10 @@ static status find_arguments(struct command** cmd,char *cmdline,unsigned int* po
         int size=(*pos)-i;
         (*cmd)->arguments[(*cmd)->argc]=(char*)malloc(size);
         strncpy((*cmd)->arguments[(*cmd)->argc++],&cmdline[i],size);
-
-        // pd((*cmd)->arguments[1]);
         while(!whitespace(cmdline[*pos])){
             if(cmdline[(*pos)]==10) break;
         }
     }
     a((*cmd)->arguments[(*cmd)->argc]==NULL);
-    // (*cmd)->arguments[(*cmd)->argc]=malloc(sizeof(NULL));
-    // (*cmd)->arguments[(*cmd)->argc]=NULL;
     return status;
 }
