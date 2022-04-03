@@ -5,10 +5,13 @@
 
 // command* builtin_command;
 
-#define CMD_VARIABLE 14
+#define CMD_VARIABLE 16
 
 extern struct command command_list[CMD_VARIABLE];
 extern int num_builtin_command;
+
+status change_directory(char* path);
+
 
 
 #endif

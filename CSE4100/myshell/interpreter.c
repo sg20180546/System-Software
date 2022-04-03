@@ -18,21 +18,6 @@ static status find_shell_command(char* cmdline,int* pos,struct command** cbuf);
 static struct command* is_variable(char* cmdline,int* pos);
 static status find_arguments(struct command** cmd,char *cmdline,unsigned int* pos);
 
-struct command command_list[CMD_VARIABLE]={
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"cat"}},
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"cd"}},
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"clear"}},
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"echo"}},
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"exit"}},
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"grep"}},
-    {0,NULL,CUSTOM,NULL,NULL,0,&(static_command){"jobs"}},
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"ls"}},
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"mkdir"}},
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"pwd"}},
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"rmdir"}},
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"sleep"}},
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"touch"}},
-    {0,NULL,STATIC,NULL,NULL,0,&(static_command){"variable"}} };
 
 unsigned int    running_background_jobs_front=0;
 unsigned int    running_background_jobs_rear=0;
@@ -41,9 +26,17 @@ int    variable_list_size=1;
 int    num_builtin_command=CMD_VARIABLE-1;
 
 
-void sigchild_handler(int sig){
+void sigchild_handler_child(int sig){
     while(waitpid(-1,NULL,0)>0);
 }
+
+void sigchild_handler_parent(int sig){
+    while(waitpid(-1,NULL,0)>0){
+
+    }
+}
+
+
 
   int debug=0;
 void interpreter(char* cmdline){
@@ -77,20 +70,15 @@ void interpreter(char* cmdline){
         switch (status)
         {
         case OK:
-            a(mode=FOREGROUND);
             // if background job, wait at child
             if(mode==BACKGROUND){
-                pd("BACKGROUND");
-                sigset_t mask;
-                sigaddset(&mask,SIGCHLD);
-                sigprocmask(SIG_BLOCK,&mask,NULL);
+                printf("[BG] %d : %s\n",pid,buf);
+                signal(SIGCHLD,sigchild_handler_child);
                 execute_commands(first_command);
-
                 exit(0);
             }
 
             execute_commands(first_command);
-            exit(45);
             break;
         case BUFFERING:
             goto l1;
@@ -104,14 +92,16 @@ void interpreter(char* cmdline){
         default:
             break;
         }
+        exit(45);
     }else{
         // if foreground job, wait at parent
         // pd("wating");
-        if(pid!=0&&mode==FOREGROUND){
+        if(mode==FOREGROUND){
             close(fds[READ_END]); close(fds[WRITE_END]);
             while(waitpid(pid,NULL,0)>0);
             
         }else{
+
             running_background_jobs[running_background_jobs_rear]=malloc(strlen(buf));
             strcpy(running_background_jobs[running_background_jobs_rear],buf);
             running_background_jobs_rear=(running_background_jobs_rear+1)%MAXARGS;

@@ -19,7 +19,7 @@ BACKGROUND,FOREGROUND
 }MODE;
 
 typedef enum _flag{
-    STATIC,VARIABLE,CUSTOM
+    STATIC,VARIABLE,CUSTOM,FUNCTION
 }cmd_flag;
 
 
@@ -32,10 +32,16 @@ typedef struct _custom_command{
     char* name;
 }custom_command;
 
+typedef struct _function_command{
+    char* name;
+    status (*fp)(char*);
+}fucntion_command;
+
 typedef struct _variable{
     char* key;
     char* value;
 }variable;
+
 
 struct command{
     unsigned short argc;
@@ -45,10 +51,11 @@ struct command{
     struct command* redirectfrom;
     bool is_redirecting;
     union
-    {
+    {   
+        custom_command* cstm_cmd;
         static_command* static_cmd;
         variable* variable;
-        custom_command* cstm_cmd;
+        fucntion_command* func_cmd;
     };
 };
 

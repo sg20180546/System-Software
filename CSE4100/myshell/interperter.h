@@ -18,4 +18,8 @@ void initialize();
 void interpreter(char* cmdline);
 char* builtin_command_list[MAXARGS];
 
+void free_commands(struct command* cmd);
+
+
+
 #endif
