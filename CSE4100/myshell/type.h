@@ -32,10 +32,10 @@ typedef struct _custom_command{
     char* name;
 }custom_command;
 
-typedef struct _function_command{
+typedef struct _builtin{
     char* name;
     status (*fp)(char*);
-}fucntion_command;
+}builtin;
 
 typedef struct _variable{
     char* key;
@@ -51,12 +51,11 @@ struct command{
     struct command* redirectfrom;
     bool is_redirecting;
     union
-    {   
-        custom_command* cstm_cmd;
-        static_command* static_cmd;
+    {
+        builtin* builtin;
         variable* variable;
-        fucntion_command* func_cmd;
     };
+    
 };
 
 

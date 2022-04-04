@@ -20,8 +20,8 @@ void execute_commands(struct command* cur_cmd){
         close(fds[READ_END]); close(fds[WRITE_END]);
 
         char path[20]="/bin/";
-        if(cur_cmd->f==STATIC) strcat(path,cur_cmd->static_cmd->name);
-        if(cur_cmd->f==CUSTOM) strcat(BUILTIN_PATH,cur_cmd->cstm_cmd->name);
+        if(cur_cmd->f==STATIC) strcat(path,cur_cmd->builtin->name);
+        if(cur_cmd->f==CUSTOM) strcat(BUILTIN_PATH,cur_cmd->builtin->name);
         
     
         if(execve(path,cur_cmd->arguments,NULL)<0){

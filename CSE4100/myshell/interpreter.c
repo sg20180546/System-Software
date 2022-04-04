@@ -136,7 +136,7 @@ static status parser(char* cmdline,struct command** first_command,struct command
         previous_command=cbuf;
         
 
-        if(cbuf->f==STATIC){
+        if( (cbuf->f==STATIC)||(cbuf->f=FUNCTION)){
             while(whitespace(cmdline[pos])) pos++;
             status=find_arguments(&cbuf,cmdline,&pos);
             if(status!=OK){
@@ -190,18 +190,18 @@ static status find_shell_command(char* cmdline,int* pos,struct command** cbuf){
         while(low<=high){
             mid=(low+high)/2;
 
-            int c=cmdline[*pos]-command_list[mid].static_cmd->name[0];
+            int c=cmdline[*pos]-command_list[mid].builtin->name[0];
             if(c==0){
-              if(!strncmp(&cmdline[*pos],command_list[mid].static_cmd->name,strlen(command_list[mid].static_cmd->name))){
+              if(!strncmp(&cmdline[*pos],command_list[mid].builtin->name,strlen(command_list[mid].builtin->name))){
                   *cbuf=malloc(sizeof(struct command));
                   (*cbuf)->f=command_list[mid].f;
-                  (*cbuf)->static_cmd=malloc(sizeof(static_command));
-                  (*cbuf)->static_cmd->name=malloc(sizeof(command_list[mid].static_cmd->name));
-                  strcpy((*cbuf)->static_cmd->name,command_list[mid].static_cmd->name);
-                  *pos+=strlen((*cbuf)->static_cmd->name);
+                  (*cbuf)->builtin=malloc(sizeof(static_command));
+                  (*cbuf)->builtin->name=malloc(sizeof(command_list[mid].builtin->name));
+                  strcpy((*cbuf)->builtin->name,command_list[mid].builtin->name);
+                  *pos+=strlen((*cbuf)->builtin->name);
                   break;
               }else{
-                  if( (cmdline[*pos+1]-command_list[mid].static_cmd->name[1])>0) low=mid+1;
+                  if( (cmdline[*pos+1]-command_list[mid].builtin->name[1])>0) low=mid+1;
                   else high=mid-1;
               }
             } 
@@ -266,8 +266,8 @@ static status find_arguments(struct command** cmd,char *cmdline,unsigned int* po
     status status=OK;
     (*cmd)->argc=0;
     (*cmd)->arguments=malloc(sizeof(char*)*MAXARGS);
-    (*cmd)->arguments[(*cmd)->argc++]=malloc(strlen((*cmd)->static_cmd->name));
-    strcpy((*cmd)->arguments[0],(*cmd)->static_cmd->name);
+    (*cmd)->arguments[(*cmd)->argc++]=malloc(strlen((*cmd)->builtin->name));
+    strcpy((*cmd)->arguments[0],(*cmd)->builtin->name);
     while(1){
 
 
