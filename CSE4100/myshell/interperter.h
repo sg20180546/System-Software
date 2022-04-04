@@ -10,15 +10,13 @@
 
 #include "type.h"
 #include "common.h"
+#include "execute.h"
+#include "builtin.h"
+#include "./module/jobs.h"
+#include "./module/cd.h"
 
-extern unsigned int running_background_jobs_front;
-extern unsigned int running_background_jobs_rear;
-char* running_background_jobs[MAXARGS];
-void initialize();
 void interpreter(char* cmdline);
 char* builtin_command_list[MAXARGS];
-
-void free_commands(struct command* cmd);
 
 
 

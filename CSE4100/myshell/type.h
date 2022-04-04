@@ -19,7 +19,7 @@ BACKGROUND,FOREGROUND
 }MODE;
 
 typedef enum _flag{
-    STATIC,VARIABLE,CUSTOM,FUNCTION
+    STATIC,VARIABLE,FUNCTION
 }cmd_flag;
 
 
@@ -34,7 +34,7 @@ typedef struct _custom_command{
 
 typedef struct _builtin{
     char* name;
-    status (*fp)(char*);
+    void (*fp)(char**);
 }builtin;
 
 typedef struct _variable{
@@ -57,6 +57,18 @@ struct command{
     };
     
 };
+typedef enum{
+    RUNNING,STOPPED,TERMINATED
+}STATE;
+
+
+
+typedef struct _PROCESS{
+    pid_t pgid;
+    STATE state;
+    char* cmdline;
+    int foreground;   
+}PROCESS;
 
 
 

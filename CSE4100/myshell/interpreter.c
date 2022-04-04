@@ -1,8 +1,4 @@
 #include "interperter.h"
-#include "type.h"
-#include "builtin.h"
-#include "common.h"
-#include "execute.h"
 
 
 // #include "myshell.h"
@@ -17,8 +13,8 @@ static status parser(char* cmdline,struct command** first_command,struct command
 static status find_shell_command(char* cmdline,int* pos,struct command** cbuf);
 static struct command* is_variable(char* cmdline,int* pos);
 static status find_arguments(struct command** cmd,char *cmdline,unsigned int* pos);
-
-
+static void free_command_list(struct command* cmd);
+static void free_command(struct command* cmd);
 unsigned int    running_background_jobs_front=0;
 unsigned int    running_background_jobs_rear=0;
 int    num_variable=0;
@@ -26,6 +22,8 @@ int    variable_list_size=1;
 int    num_builtin_command=CMD_VARIABLE-1;
 
 
+
+// HOW TO INSTALL SIGNAL HANDLER consistenly both back and fore?
 void sigchild_handler_child(int sig){
     while(waitpid(-1,NULL,0)>0);
 }
@@ -38,8 +36,11 @@ void sigchild_handler_parent(int sig){
 
 
 
-  int debug=0;
+
+
+
 void interpreter(char* cmdline){
+    pid_t child_pid;
     pipe(fds);
     
 
@@ -65,14 +66,21 @@ void interpreter(char* cmdline){
 
     a(first_command!=NULL);
     a(last_command!=NULL);
-    pid_t pid;
-    if((pid=fork())==0){
+ 
+    
+    if(first_command->f=FUNCTION&&mode==FOREGROUND){
+        execute_function_command(first_command);
+        first_command=first_command->redirectto;
+    }
+
+    if((child_pid=fork())==0){
         switch (status)
         {
         case OK:
             // if background job, wait at child
             if(mode==BACKGROUND){
-                printf("[BG] %d : %s\n",pid,buf);
+                // make new process group id
+                printf("[BG] %d : %s\n",child_pid,buf);
                 signal(SIGCHLD,sigchild_handler_child);
                 execute_commands(first_command);
                 exit(0);
@@ -98,15 +106,16 @@ void interpreter(char* cmdline){
         // pd("wating");
         if(mode==FOREGROUND){
             close(fds[READ_END]); close(fds[WRITE_END]);
-            while(waitpid(pid,NULL,0)>0);
-            
+            sigset_t mask;
+            sigemptyset(&mask);
+            sigsuspend(&mask);
         }else{
 
-            running_background_jobs[running_background_jobs_rear]=malloc(strlen(buf));
-            strcpy(running_background_jobs[running_background_jobs_rear],buf);
-            running_background_jobs_rear=(running_background_jobs_rear+1)%MAXARGS;
+
         }
     }
+
+    free_command_list(first_command);
 }
 
 // find builtin name by binary search
@@ -257,9 +266,6 @@ static struct command* is_variable(char* cmdline,int* pos){
 //     return;
 // }
 
-void free_all_command(struct command** cmd){
-
-}
 
 
 static status find_arguments(struct command** cmd,char *cmdline,unsigned int* pos){
@@ -286,9 +292,26 @@ static status find_arguments(struct command** cmd,char *cmdline,unsigned int* po
         (*cmd)->arguments[(*cmd)->argc]=(char*)malloc(size);
         strncpy((*cmd)->arguments[(*cmd)->argc++],&cmdline[i],size);
         while(!whitespace(cmdline[*pos])){
-            if(cmdline[(*pos)]==10) break;
+            if(cmdline[(*pos)]==ENTER) break; //10
         }
     }
     a((*cmd)->arguments[(*cmd)->argc]==NULL);
     return status;
+}
+
+static void free_command_list(struct command* cmd){
+    struct commmad* next;
+    for(;cmd;cmd=cmd->redirectto){
+        free_command(cmd);
+    }
+}
+
+static void free_command(struct command* cmd){
+    int i;
+    for(i=0;i<=cmd->argc;i++){
+        free(cmd->arguments[0]);
+    }
+    free(cmd->arguments);
+    free(cmd->builtin);
+    free(cmd);
 }

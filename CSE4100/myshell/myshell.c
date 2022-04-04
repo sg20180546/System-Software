@@ -3,8 +3,8 @@
 // [1] 20878 background [1]+  Done
 int main(){
 
+    parent_pid=getpid();
 
-    // initialize();
     while(1){
         interpreter(cmdline);
 

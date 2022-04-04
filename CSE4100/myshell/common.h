@@ -9,10 +9,12 @@
 #include <assert.h>
 #define BUILTIN_PATH "../module/"
 #define MAXARGS 16
+#define MAXPROCESS 1024
 #define BIN "/bin/"
 #define	MAXLINE	4096
 #define a(x) assert(x)
 #define pd(x) printf("%s\n",(x))
+pid_t parent_pid;
 
 
 #endif

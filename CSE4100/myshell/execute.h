@@ -6,5 +6,5 @@
 #define WRITE_END 1
 int fds[2];
 void execute_commands(struct command* first_cmd);
-
+void execute_function_command(struct command* func_cmd);
 #endif
