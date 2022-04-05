@@ -12,7 +12,7 @@ int main(int argc,char** argv){
     hints.ai_family=AF_INET;
     hints.ai_socktype=SOCK_STREAM;
 
-    if((rc=getaddrinfo(argv[1],NULL,&hints,&listp))!=0){
+    if((rc=getaddrinfo(argv[1],"443",&hints,&listp))!=0){
         fprintf(stderr,"getaddrinfo error: %s",gai_strerror(rc));
         exit(1);
     }

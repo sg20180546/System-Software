@@ -19,18 +19,8 @@ BACKGROUND,FOREGROUND
 }MODE;
 
 typedef enum _flag{
-    STATIC,VARIABLE,FUNCTION
+    ABSOLUTE,VARIABLE,FUNCTION,RELATIVE
 }cmd_flag;
-
-
-typedef struct _static_command{
-    char* name;
-    // void (*argument_checker)(char*,char*);
-} static_command;
-
-typedef struct _custom_command{
-    char* name;
-}custom_command;
 
 typedef struct _builtin{
     char* name;
@@ -63,12 +53,12 @@ typedef enum{
 
 
 
-typedef struct _PROCESS{
+typedef struct _JOB{
     pid_t pgid;
     STATE state;
     char* cmdline;
     int foreground;   
-}PROCESS;
+}JOB;
 
 
 

@@ -5,20 +5,20 @@
 #include "../common.h"
 #include "../type.h"
 
-extern int p_front;
-extern int p_rear;
-
+extern int jobs_front;
+extern int jobs_rear;
+extern int jobs_n;
 // hasing name -> one time random access
 // save current jobs number
 // if garbage collection remove last job, init jobs number=0
-PROCESS process_group_list[MAXPROCESS];
+JOB* jobs_list[MAXJOBS];
 
 
 void insert_jobs(pid_t pgid,char* cmdline,int foreground);
 
 void print_jobs(char** argv);
 
-void garbage_collection();
+void reap_dead_jobs();
 
 
 // if bg, sigcont to bg process

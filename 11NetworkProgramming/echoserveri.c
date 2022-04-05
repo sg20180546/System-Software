@@ -10,7 +10,8 @@ void echo(int connfd){
         Rio_writen(connfd,buf,n);
     }
 }
-
+struct sockaddr a;
+struct sockaddr_in b;
 int main(int argc,char** argv){
     int listenfd,connfd;
     socklen_t clientlen;
@@ -21,7 +22,7 @@ int main(int argc,char** argv){
         fprintf(stderr,"usage : %s <port>\n",argv[0]);
         exit(0);
     }
-
+    // listen();
     listenfd=Open_listenfd(argv[1]);
     while(1){
         clientlen=sizeof(struct sockaddr_storage);

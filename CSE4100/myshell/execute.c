@@ -22,13 +22,17 @@ void execute_commands(struct command* cur_cmd){
         
         if(cur_cmd->f==FUNCTION){
             execute_function_command(cur_cmd);
-        }else if(cur_cmd->f==STATIC){
+        }else if(cur_cmd->f==ABSOLUTE){
             char path[20]="/bin/";
             strcat(path,cur_cmd->builtin->name);
             if(execve(path,cur_cmd->arguments,NULL)<0){
                 fprintf(stderr,"Executing falied\n");
-                exit(33);
             }
+        }else if(cur_cmd->f==RELATIVE){
+            if(execve(cur_cmd->builtin->name,cur_cmd->arguments,NULL)<0){
+                fprintf(stderr,"MYSHELL: %s : No such file or directory",cur_cmd->builtin->name);
+            }
+            
         }
         
     
@@ -46,7 +50,6 @@ void execute_commands(struct command* cur_cmd){
 void execute_function_command(struct command* func_cmd){
     if(func_cmd->f!=FUNCTION){
         fprintf(stderr,"FUNCTION COMMAND ERROR\n");
-        exit(0);
     }
     func_cmd->builtin->fp(func_cmd->arguments);
 }

@@ -7,7 +7,7 @@
 #define TAB '\t'
 #define whitespace(x) ( ( (x) ==SPACE) || ( (x) == TAB)  )
 
-
+#include "sig.h"
 #include "type.h"
 #include "common.h"
 #include "execute.h"
@@ -15,8 +15,8 @@
 #include "./module/jobs.h"
 #include "./module/cd.h"
 
+
 void interpreter(char* cmdline);
-char* builtin_command_list[MAXARGS];
 
 
 
