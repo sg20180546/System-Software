@@ -7,6 +7,7 @@
 #include <string.h>
 #include <wait.h>
 #include <assert.h>
+#include <setjmp.h>
 #define BUILTIN_PATH "../module/"
 #define MAXARGS 16
 #define MAXJOBS 1024
@@ -15,6 +16,6 @@
 #define a(x) assert(x)
 #define pd(x) printf("%s\n",(x))
 pid_t parent_pid;
-
-
+pid_t child_pid;
+sigjmp_buf jbuf;
 #endif

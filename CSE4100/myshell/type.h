@@ -39,7 +39,6 @@ struct command{
     cmd_flag f;
     struct command* redirectto;
     struct command* redirectfrom;
-    bool is_redirecting;
     union
     {
         builtin* builtin;

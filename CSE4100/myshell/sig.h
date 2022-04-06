@@ -3,6 +3,9 @@
 
 #include "common.h"
 #include "type.h"
+#include "interperter.h"
+
+int foreground_job;
 
 void sigchild_handler_child(int sig);
 

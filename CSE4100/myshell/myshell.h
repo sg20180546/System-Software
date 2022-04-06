@@ -6,7 +6,6 @@
 
 
 char cmdline[MAXLINE];
-char background_buffer[MAXLINE];
 
 
 #endif

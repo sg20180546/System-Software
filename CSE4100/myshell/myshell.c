@@ -4,11 +4,12 @@
 int main(){
 
     parent_pid=getpid();
+    
     signal(SIGCHLD,sigchild_handler_parent);
     signal(SIGINT,sigint_handler);
-    signal(SIGSTOP,sigtstp_handler);
-    
+    signal(SIGTSTP,sigtstp_handler);
     while(1){
+        sigsetjmp(jbuf,1);
         interpreter(cmdline);
     }
 

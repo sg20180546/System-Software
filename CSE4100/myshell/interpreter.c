@@ -24,9 +24,8 @@ int    num_builtin_command=CMD_VARIABLE-1;
 
 
 void interpreter(char* cmdline){
-    pid_t child_pid;
     pipe(fds);
-    
+    pid_t pid;
 
     l1:
     write(1,">",1);
@@ -43,14 +42,17 @@ void interpreter(char* cmdline){
 
     if(status==BUFFERING) status=parser(buf,&last_command,&last_command,&mode);
     else status=parser(buf,&first_command,&last_command,&mode);
-
-    
     if(first_command&&first_command->f==FUNCTION&&mode==FOREGROUND){
-        
         execute_function_command(first_command);
-        first_command=first_command->redirectto;
+        
+        
+    struct command* buf=first_command->redirectto;
+    free_command(first_command);
+    first_command=buf;
+         
+        
     }
-    if((child_pid=fork())==0){
+    if((pid=fork())==0){
         
         switch (status)
         {
@@ -58,7 +60,7 @@ void interpreter(char* cmdline){
             // if background job, wait at child
             if(mode==BACKGROUND){
                 // make new process group id
-                printf("[BG] %d : %s\n",child_pid,buf);
+                printf("[BG] %d : %s\n",pid,buf);
                 insert_jobs(getpgrp(),buf,0);
                 signal(SIGCHLD, SIG_DFL);
                 signal(SIGCHLD,sigchild_handler_child);
@@ -84,8 +86,8 @@ void interpreter(char* cmdline){
     }else{
         
         // if foreground job, wait at parent
-        // pd("wating");
         if(mode==FOREGROUND){
+            child_pid=pid;
             reap_dead_jobs();
             close(fds[READ_END]); close(fds[WRITE_END]);
             sigset_t mask;
@@ -114,7 +116,7 @@ static status parser(char* cmdline,struct command** first_command,struct command
         struct command* cbuf;
 
         status=find_shell_command(cmdline,&pos,&cbuf);
-        a(status==NOCOMMANDERR);
+       
         if(status!=OK) return status;
 
         if(!(*first_command)) *first_command=cbuf;
@@ -190,9 +192,8 @@ static status find_shell_command(char* cmdline,int* pos,struct command** cbuf){
             (*cbuf)->f=RELATIVE;
             (*cbuf)->builtin=malloc(sizeof(builtin));
             (*cbuf)->builtin->name=malloc((*pos)-i);
-            // pd("hrerere?");
             strncpy((*cbuf)->builtin->name,&cmdline[i],(*pos)-i);
-            // printf("%d %d\n",*pos,i);
+            
             return status;
         }
 
@@ -207,6 +208,9 @@ static status find_shell_command(char* cmdline,int* pos,struct command** cbuf){
                   *cbuf=malloc(sizeof(struct command));
                   (*cbuf)->f=command_list[mid].f;
                   (*cbuf)->builtin=malloc(sizeof(builtin));
+                  if((*cbuf)->f==FUNCTION) (*cbuf)->builtin->fp=command_list[mid].builtin->fp;
+                //   pd("h");
+                  
                   (*cbuf)->builtin->name=malloc(sizeof(command_list[mid].builtin->name));
                   strcpy((*cbuf)->builtin->name,command_list[mid].builtin->name);
                   *pos+=strlen((*cbuf)->builtin->name);
@@ -227,8 +231,7 @@ static status find_shell_command(char* cmdline,int* pos,struct command** cbuf){
         // pd("hello");
         // a((*cbuf)==NULL);
         if((*cbuf)==NULL) status=NOCOMMANDERR;
-        // pd("after");
-        a(status==NOCOMMANDERR);
+       
         return status;
 }
 
@@ -239,7 +242,7 @@ static struct command* is_variable(char* cmdline,int* pos){
     unsigned short i=*pos;
     unsigned short j;
 
-    pd("here2?");
+    // pd("here2?");
     while( cmdline[*pos]!='='){
         if((whitespace(cmdline[*pos]))||(cmdline[*pos]==ENTER)){
             return NULL;
@@ -310,6 +313,7 @@ static status find_arguments(struct command** cmd,char *cmdline,unsigned int* po
 
 static void free_command_list(struct command* cmd){
     struct commmad* next;
+    // a(cmd==NULL);
     if(!cmd) return;
     for(;cmd;cmd=cmd->redirectto){
         free_command(cmd);
@@ -318,7 +322,7 @@ static void free_command_list(struct command* cmd){
 
 static void free_command(struct command* cmd){
     int i;
-    for(i=0;i<=cmd->argc;i++){
+    for(i=0;i<cmd->argc;i++){
         free(cmd->arguments[i]);
     }
     free(cmd->arguments);
