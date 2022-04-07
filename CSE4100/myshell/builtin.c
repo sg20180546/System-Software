@@ -21,5 +21,6 @@ struct command command_list[CMD_VARIABLE]={
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"pwd"}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"rmdir"}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"sleep"}},
+    {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"sort"}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"touch"}},
     {0,NULL,VARIABLE,NULL,NULL,&(builtin){"variable"}} };

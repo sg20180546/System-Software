@@ -1,10 +1,12 @@
 #include "sig.h"
 
 void sigchild_handler_child(int sig){
-    while(waitpid(-1,NULL,0)>0);
+    while(waitpid(-1,NULL,0)>0){
+        kill(getpid(),SIGCONT);
+    }
 }
 
-void sigchild_handler_parent(int sig){
+void sigchild_handler(int sig){
    // send SIGCONT to myself
    pid_t pid;
    while( (pid=waitpid(-1,NULL,0))>0){
@@ -18,16 +20,60 @@ void sigchild_handler_parent(int sig){
 
 
 void sigint_handler(int sig){
+    
+    // pd("sig int");
     if(child_pid) {
+        // printf("%d",child_pid);
+        SEND_INT(child_pid);
+        SEND_CONTINUE(parent_pid);
         child_pid=0;
-        kill(child_pid,SIGINT);
     }
-    else write(1,"\n",1);
-    siglongjmp(jbuf,1);
 }
 
+// void sigint_handler_child(int sig){
+//     SEND_CONTINUE(parent_pid);
+//     kill(getpid(),SIGKILL);
+// }
+
 void sigtstp_handler(int sig){
-    if(child_pid) kill(child_pid,SIGSTOP);
-    else write(1,"\n",1);
-    siglongjmp(jbuf,1);
+    
+    // pd("sig STOP");
+    if(child_pid){
+
+        printf("%d",child_pid);
+        SEND_TSTP(child_pid);
+        SEND_CONTINUE(parent_pid);
+        pd("Stopped");
+        child_pid=0;
+    } 
+}
+
+// void sigtstp_handler_child(int sig){
+//     // SEND_CONTINUE(parent_pid);
+//     kill(getpid(),SIGSTOP);
+// }
+
+
+
+
+
+
+
+
+
+
+void sigttou_handler(int sig){
+    SEND_KILL(parent_pid);
+    exit(0);    
+    fprintf(stderr,"sig ttou come!\n");
+    kill(parent_pid,SIGCONT);
+}
+
+
+void sigttin_handler(int sig){
+    fprintf(stderr,"sig ttin come!\n");
+}
+
+void sigpipe_handler(int sig){
+    fprintf(stderr,"sig pipe come!\n");
 }

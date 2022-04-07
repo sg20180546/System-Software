@@ -5,6 +5,7 @@
 #define SPACE ' '
 #define ENTER 10
 #define TAB '\t'
+#define DAPOSTROPHE '"'
 #define whitespace(x) ( ( (x) ==SPACE) || ( (x) == TAB)  )
 
 #include "sig.h"

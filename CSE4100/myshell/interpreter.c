@@ -24,10 +24,7 @@ int    num_builtin_command=CMD_VARIABLE-1;
 
 
 void interpreter(char* cmdline){
-    pipe(fds);
-    pid_t pid;
-
-    l1:
+    
     write(1,">",1);
     fgets(cmdline,MAXLINE,stdin);
     if(feof(stdin)) exit(0);
@@ -42,28 +39,36 @@ void interpreter(char* cmdline){
 
     if(status==BUFFERING) status=parser(buf,&last_command,&last_command,&mode);
     else status=parser(buf,&first_command,&last_command,&mode);
-    if(first_command&&first_command->f==FUNCTION&&mode==FOREGROUND){
-        execute_function_command(first_command);
-        
-        
-    struct command* buf=first_command->redirectto;
-    free_command(first_command);
-    first_command=buf;
-         
-        
-    }
-    if((pid=fork())==0){
-        
+        if(first_command&&first_command->f==FUNCTION&&mode==FOREGROUND){
+            execute_function_command(first_command);
+            
+            
+        struct command* buf=first_command->redirectto;
+        free_command(first_command);
+        first_command=buf;
+            
+            
+        }
+    // pd(first_command->redirectto->redirectto->builtin->name);
+    if((child_pid=fork())==0){
+        pipe(fds);
+        pid_t pid=getpid();
+        // setpgrp();
+        signal(SIGCHLD,SIG_DFL);
+        signal(SIGINT,SIG_DFL);
+        signal(SIGSTOP,SIG_DFL);
+        // signal(SIGCHLD,sigchild_handler_child);
         switch (status)
         {
         case OK:
             // if background job, wait at child
             if(mode==BACKGROUND){
                 // make new process group id
-                printf("[BG] %d : %s\n",pid,buf);
-                insert_jobs(getpgrp(),buf,0);
-                signal(SIGCHLD, SIG_DFL);
-                signal(SIGCHLD,sigchild_handler_child);
+                printf("[BG] %d : %s\n",child_pid,buf);
+                
+                insert_jobs(pid,buf,0);
+                // signal(SIGCHLD, SIG_DFL);
+                // signal(SIGCHLD,sigchild_handler_child); //wake up to 94
                 execute_commands(first_command);
                 exit(0);
             }
@@ -82,14 +87,12 @@ void interpreter(char* cmdline){
         default:
             break;
         }
-        exit(45);
+        close(fds[READ_END]); close(fds[WRITE_END]);
+        exit(0);
     }else{
-        
         // if foreground job, wait at parent
         if(mode==FOREGROUND){
-            child_pid=pid;
             reap_dead_jobs();
-            close(fds[READ_END]); close(fds[WRITE_END]);
             sigset_t mask;
             sigemptyset(&mask);
             sigsuspend(&mask);
@@ -97,9 +100,10 @@ void interpreter(char* cmdline){
 
 
         }
+        free_command_list(first_command);
+        // a(first_command==NULL);
     }
-
-    free_command_list(first_command);
+    
 }
 
 // find builtin name by binary search
@@ -119,23 +123,23 @@ static status parser(char* cmdline,struct command** first_command,struct command
        
         if(status!=OK) return status;
 
-        if(!(*first_command)) *first_command=cbuf;
+        if(!(*first_command)) (*first_command)=cbuf;
         (*last_command)=cbuf;
   
-        if(previous_command){
+        if(previous_command!=NULL){
           cbuf->redirectfrom=previous_command;
           previous_command->redirectto=cbuf;  
         }
         previous_command=cbuf;
-        
-
-        if((cbuf->f==ABSOLUTE)||(cbuf->f==FUNCTION)){
+        // pd(cbuf->builtin->name);
+        if(cbuf->f!=VARIABLE){
             while(whitespace(cmdline[pos])) pos++;
             status=find_arguments(&cbuf,cmdline,&pos);
             if(status!=OK){
                 return status;
             }
         }
+        
       while(whitespace(cmdline[pos])) pos++;
 
         if(cmdline[pos]==AMPERSAND){
@@ -150,25 +154,6 @@ static status parser(char* cmdline,struct command** first_command,struct command
             status=BUFFERING;
             pos++;
         }
-
-        // pd(cbuf->arguments[0]);
-        // while(cmdline[i++]!=SPACE)
-
-        // if(cmdline[i]==PIPE) *pipen++;
-
-
-
-
-        // how to check and save command efficeintly, not using strncmp? -> binary search
-        // pipeline -> how to write other proccess file descriptor 0 of file table, whcih is stdin?
-        // |-> because child copy same file table with parent, writing to 1 is can wathced in other process
-        //binarysearch
-
-        // if not found , found abc=test
-        
-
-        // if not unfound command
-
     }
     return status;
 }
@@ -176,7 +161,7 @@ static status parser(char* cmdline,struct command** first_command,struct command
 static status find_shell_command(char* cmdline,int* pos,struct command** cbuf){
         status status=OK;
         (*cbuf)=NULL;
-        unsigned short low=0,high=num_builtin_command,mid;
+        short low=0,high=num_builtin_command,mid;
         
         if(cmdline[*pos]=='.'){
            
@@ -188,34 +173,35 @@ static status find_shell_command(char* cmdline,int* pos,struct command** cbuf){
                 (*pos)++;
             }
             
-            *cbuf=malloc(sizeof(struct command));
+            *cbuf=calloc(1,sizeof(struct command));
             (*cbuf)->f=RELATIVE;
-            (*cbuf)->builtin=malloc(sizeof(builtin));
-            (*cbuf)->builtin->name=malloc((*pos)-i);
+            (*cbuf)->builtin=calloc(1,sizeof(builtin));
+            (*cbuf)->builtin->name=calloc(1,(*pos)-i);
             strncpy((*cbuf)->builtin->name,&cmdline[i],(*pos)-i);
             
             return status;
         }
 
-
         while(low<=high){
             mid=(low+high)/2;
-
+            // printf("low : %d high :%d\n",low,high);
             int c=cmdline[*pos]-command_list[mid].builtin->name[0];
-
+            // printf("%s\n",command_list[mid].builtin->name);
             if(c==0){
               if(!strncmp(&cmdline[*pos],command_list[mid].builtin->name,strlen(command_list[mid].builtin->name))){
-                  *cbuf=malloc(sizeof(struct command));
+                //   pd("same");
+                  *cbuf=calloc(1,sizeof(struct command));
                   (*cbuf)->f=command_list[mid].f;
-                  (*cbuf)->builtin=malloc(sizeof(builtin));
+                  (*cbuf)->builtin=calloc(1,sizeof(builtin));
                   if((*cbuf)->f==FUNCTION) (*cbuf)->builtin->fp=command_list[mid].builtin->fp;
-                //   pd("h");
+                
                   
-                  (*cbuf)->builtin->name=malloc(sizeof(command_list[mid].builtin->name));
+                  (*cbuf)->builtin->name=calloc(1,sizeof(command_list[mid].builtin->name));
                   strcpy((*cbuf)->builtin->name,command_list[mid].builtin->name);
                   *pos+=strlen((*cbuf)->builtin->name);
                   break;
               }else{
+                //   pd("here???");
                   if( (cmdline[*pos+1]-command_list[mid].builtin->name[1])>0) low=mid+1;
                   else high=mid-1;
               }
@@ -224,11 +210,7 @@ static status find_shell_command(char* cmdline,int* pos,struct command** cbuf){
             else high=mid-1;
 
         }
-        // if(cbuf==NULL){
-        //     pd("here?2");
-        //     (*cbuf)=is_variable(cmdline,pos);
-        // }
-        // pd("hello");
+        // pd("hi");
         // a((*cbuf)==NULL);
         if((*cbuf)==NULL) status=NOCOMMANDERR;
        
@@ -255,11 +237,11 @@ static struct command* is_variable(char* cmdline,int* pos){
     while(!whitespace(cmdline[*pos])) *pos++;
         
     // strncpy(value,cmdline[i],j-i);
-    cmd=malloc(sizeof(struct command));
+    cmd=calloc(1,sizeof(struct command));
     cmd->f=VARIABLE;
-    cmd->variable=malloc(sizeof(variable));
-    cmd->variable->key=malloc(j-i);
-    cmd->variable->value=malloc( (*pos)-j );
+    cmd->variable=calloc(1,sizeof(variable));
+    cmd->variable->key=calloc(1,j-i);
+    cmd->variable->value=calloc(1, (*pos)-j );
     strncpy(cmd->variable->key,(&cmdline[i]),j-1);
     strncpy(cmd->variable->value,&cmdline[j+2], *pos - j );
     return cmd;
@@ -271,7 +253,7 @@ static struct command* is_variable(char* cmdline,int* pos){
 
 //     if(num_variable==variable_list_size||variable_list_size==1){
 //         variable_list_size=variable_list_size<<1;
-//         variable_list=malloc(sizeof(variable*)*variable_list_size);
+//         variable_list=calloc(1,sizeof(variable*)*variable_list_size);
 //     }
 //     variable_list[num_variable++]=var;
 
@@ -282,50 +264,84 @@ static struct command* is_variable(char* cmdline,int* pos){
 
 static status find_arguments(struct command** cmd,char *cmdline,unsigned int* pos){
     status status=OK;
-    (*cmd)->argc=0;
-    (*cmd)->arguments=malloc(sizeof(char*)*MAXARGS);
-    (*cmd)->arguments[(*cmd)->argc++]=malloc(strlen((*cmd)->builtin->name));
+    int argc=0;
+    (*cmd)->arguments=calloc(1,sizeof(char*)*MAXARGS);
+    (*cmd)->arguments[argc++]=calloc(1,strlen((*cmd)->builtin->name));
+
     strcpy((*cmd)->arguments[0],(*cmd)->builtin->name);
-    while(1){
+    for(;argc<MAXARGS;argc++){
 
 
-        if(cmdline[*pos]==PIPE||cmdline[*pos]==ENTER){
-            break;
-        }
+        
         unsigned int i=*pos;
-        while((!whitespace(cmdline[*pos])) ){
-            (*pos)=(*pos)+1;
-            if(cmdline[*pos]==10){
-                break;
+        int size=0;
+        if(cmdline[*pos]==DAPOSTROPHE){
+            i++;
+            while(cmdline[i]!=DAPOSTROPHE){
+                if(cmdline[i]==PIPE||cmdline[i]==ENTER){
+                    size=-1;
+                    break;
+                }
+                i++;
             }
-        } 
+            if(size==-1){
+                // only "
+                (*cmd)->arguments[argc]=calloc(1,2);
+                strcpy((*cmd)->arguments[argc],"\"");
+                i=(*pos);
+            }else{
+                size=i-(*pos)-1;
+                (*cmd)->arguments[argc]=calloc(1,size);
+                strncpy((*cmd)->arguments[argc],&cmdline[(*pos)+1],size);
+            }
+            (*pos)=i+1;
+        }else{
 
-        int size=(*pos)-i;
-        (*cmd)->arguments[(*cmd)->argc]=(char*)malloc(size);
-        strncpy((*cmd)->arguments[(*cmd)->argc++],&cmdline[i],size);
-        while(!whitespace(cmdline[*pos])){
-            if(cmdline[(*pos)]==ENTER) break; //10
+
+            while((!whitespace(cmdline[*pos])) ){
+                if(cmdline[*pos]==ENTER||cmdline[*pos]==PIPE){
+                    break;
+                }
+                (*pos)=(*pos)+1;
+            } 
+
+            size=(*pos)-i;
+            if(size==0) break;
+            (*cmd)->arguments[argc]=(char*)calloc(1,size);
+            strncpy((*cmd)->arguments[argc],&cmdline[i],size);
+
+            while(!whitespace(cmdline[*pos])){
+                if(cmdline[(*pos)]==ENTER) break; //10
+                (*pos)++;
+            }
         }
     }
+    (*cmd)->argc=argc;
     a((*cmd)->arguments[(*cmd)->argc]==NULL);
     return status;
 }
 
 static void free_command_list(struct command* cmd){
-    struct commmad* next;
-    // a(cmd==NULL);
-    if(!cmd) return;
-    for(;cmd;cmd=cmd->redirectto){
-        free_command(cmd);
-    }
+    if(cmd==NULL){
+        // pd("its null");
+        return;
+    } 
+    free_command_list(cmd->redirectto);
+    free_command(cmd);
 }
 
 static void free_command(struct command* cmd){
     int i;
-    for(i=0;i<cmd->argc;i++){
+    if(!cmd) return;
+    // pd("asdfew");
+    for(i=0;i<(cmd->argc);i++){
+        // if(!cmd->arguments[i]) continue;
         free(cmd->arguments[i]);
     }
+    // a(cmd->arguments!=NULL);
     free(cmd->arguments);
+    // a(cmd->builtin!=NULL);
     free(cmd->builtin);
+    // a(cmd!=NULL);
     free(cmd);
 }
