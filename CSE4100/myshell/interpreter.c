@@ -24,7 +24,8 @@ int    num_builtin_command=CMD_VARIABLE-1;
 
 
 void interpreter(char* cmdline){
-    
+    sigset_t mask;
+    sigemptyset(&mask);
     write(1,">",1);
     fgets(cmdline,MAXLINE,stdin);
     if(feof(stdin)) exit(0);
@@ -47,17 +48,17 @@ void interpreter(char* cmdline){
         free_command(first_command);
         first_command=buf;
             
-            
         }
-    // pd(first_command->redirectto->redirectto->builtin->name);
     if((child_pid=fork())==0){
-        pipe(fds);
-        pid_t pid=getpid();
+        // close(fds[READ_END]); close(fds[WRITE_END]);
+        // child_pid2=getpid();
+        // insert_jobs(child_pid2,buf,mode);
+
         // setpgrp();
-        signal(SIGCHLD,SIG_DFL);
         signal(SIGINT,SIG_DFL);
         signal(SIGSTOP,SIG_DFL);
-        // signal(SIGCHLD,sigchild_handler_child);
+        signal(SIGCHLD,SIG_DFL);
+        signal(SIGCHLD,sigchild_handler_child);
         switch (status)
         {
         case OK:
@@ -66,14 +67,12 @@ void interpreter(char* cmdline){
                 // make new process group id
                 printf("[BG] %d : %s\n",child_pid,buf);
                 
-                insert_jobs(pid,buf,0);
-                // signal(SIGCHLD, SIG_DFL);
-                // signal(SIGCHLD,sigchild_handler_child); //wake up to 94
-                execute_commands(first_command);
+
+                execute_commands(first_command,0);
                 exit(0);
             }
 
-            execute_commands(first_command);
+            execute_commands(first_command,0);
             break;
         case BUFFERING:
             // goto l1;
@@ -87,25 +86,23 @@ void interpreter(char* cmdline){
         default:
             break;
         }
-        close(fds[READ_END]); close(fds[WRITE_END]);
+        sigsuspend(&mask);
         exit(0);
     }else{
         // if foreground job, wait at parent
         if(mode==FOREGROUND){
-            reap_dead_jobs();
-            sigset_t mask;
-            sigemptyset(&mask);
+            
+            // reap_dead_jobs();
             sigsuspend(&mask);
         }else{
 
 
         }
         free_command_list(first_command);
-        // a(first_command==NULL);
     }
     
 }
-
+// https://github.com/sg20180546/CSAPP/blob/d06045832b0586638365cce91e4cd876868f5faf/CSE4100/myshell/interpreter.c
 // find builtin name by binary search
 // need to make builtin main function, excecutable object file
 // builtin list-> in complile time? run time?
@@ -131,7 +128,7 @@ static status parser(char* cmdline,struct command** first_command,struct command
           previous_command->redirectto=cbuf;  
         }
         previous_command=cbuf;
-        // pd(cbuf->builtin->name);
+
         if(cbuf->f!=VARIABLE){
             while(whitespace(cmdline[pos])) pos++;
             status=find_arguments(&cbuf,cmdline,&pos);
@@ -184,12 +181,11 @@ static status find_shell_command(char* cmdline,int* pos,struct command** cbuf){
 
         while(low<=high){
             mid=(low+high)/2;
-            // printf("low : %d high :%d\n",low,high);
+
             int c=cmdline[*pos]-command_list[mid].builtin->name[0];
-            // printf("%s\n",command_list[mid].builtin->name);
+  
             if(c==0){
               if(!strncmp(&cmdline[*pos],command_list[mid].builtin->name,strlen(command_list[mid].builtin->name))){
-                //   pd("same");
                   *cbuf=calloc(1,sizeof(struct command));
                   (*cbuf)->f=command_list[mid].f;
                   (*cbuf)->builtin=calloc(1,sizeof(builtin));
@@ -201,7 +197,6 @@ static status find_shell_command(char* cmdline,int* pos,struct command** cbuf){
                   *pos+=strlen((*cbuf)->builtin->name);
                   break;
               }else{
-                //   pd("here???");
                   if( (cmdline[*pos+1]-command_list[mid].builtin->name[1])>0) low=mid+1;
                   else high=mid-1;
               }
@@ -210,8 +205,6 @@ static status find_shell_command(char* cmdline,int* pos,struct command** cbuf){
             else high=mid-1;
 
         }
-        // pd("hi");
-        // a((*cbuf)==NULL);
         if((*cbuf)==NULL) status=NOCOMMANDERR;
        
         return status;
@@ -224,7 +217,6 @@ static struct command* is_variable(char* cmdline,int* pos){
     unsigned short i=*pos;
     unsigned short j;
 
-    // pd("here2?");
     while( cmdline[*pos]!='='){
         if((whitespace(cmdline[*pos]))||(cmdline[*pos]==ENTER)){
             return NULL;
@@ -236,7 +228,6 @@ static struct command* is_variable(char* cmdline,int* pos){
     if(whitespace(cmdline[*pos]||cmdline[*pos]==ENTER)) return NULL;
     while(!whitespace(cmdline[*pos])) *pos++;
         
-    // strncpy(value,cmdline[i],j-i);
     cmd=calloc(1,sizeof(struct command));
     cmd->f=VARIABLE;
     cmd->variable=calloc(1,sizeof(variable));
@@ -247,18 +238,6 @@ static struct command* is_variable(char* cmdline,int* pos){
     return cmd;
 }
 
-
-// when exit free variablew
-// static void allocate_variable(command* var){
-
-//     if(num_variable==variable_list_size||variable_list_size==1){
-//         variable_list_size=variable_list_size<<1;
-//         variable_list=calloc(1,sizeof(variable*)*variable_list_size);
-//     }
-//     variable_list[num_variable++]=var;
-
-//     return;
-// }
 
 
 
@@ -271,9 +250,9 @@ static status find_arguments(struct command** cmd,char *cmdline,unsigned int* po
     strcpy((*cmd)->arguments[0],(*cmd)->builtin->name);
     for(;argc<MAXARGS;argc++){
 
-
         
         unsigned int i=*pos;
+
         int size=0;
         if(cmdline[*pos]==DAPOSTROPHE){
             i++;
@@ -297,7 +276,6 @@ static status find_arguments(struct command** cmd,char *cmdline,unsigned int* po
             (*pos)=i+1;
         }else{
 
-
             while((!whitespace(cmdline[*pos])) ){
                 if(cmdline[*pos]==ENTER||cmdline[*pos]==PIPE){
                     break;
@@ -309,21 +287,22 @@ static status find_arguments(struct command** cmd,char *cmdline,unsigned int* po
             if(size==0) break;
             (*cmd)->arguments[argc]=(char*)calloc(1,size);
             strncpy((*cmd)->arguments[argc],&cmdline[i],size);
-
-            while(!whitespace(cmdline[*pos])){
-                if(cmdline[(*pos)]==ENTER) break; //10
+            
+        }
+       while(whitespace(cmdline[*pos])){
+           if(cmdline[(*pos)]==ENTER) break; //10
                 (*pos)++;
-            }
         }
     }
+    (*cmd)->arguments[argc]=NULL;
+    // printf("%s  len : %ld \n",(*cmd)->builtin->name,strlen((*cmd)->arguments[1]));
     (*cmd)->argc=argc;
-    a((*cmd)->arguments[(*cmd)->argc]==NULL);
+
     return status;
 }
 
 static void free_command_list(struct command* cmd){
     if(cmd==NULL){
-        // pd("its null");
         return;
     } 
     free_command_list(cmd->redirectto);
@@ -333,7 +312,6 @@ static void free_command_list(struct command* cmd){
 static void free_command(struct command* cmd){
     int i;
     if(!cmd) return;
-    // pd("asdfew");
     for(i=0;i<(cmd->argc);i++){
         // if(!cmd->arguments[i]) continue;
         free(cmd->arguments[i]);

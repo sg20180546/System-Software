@@ -2,8 +2,9 @@
 
 void sigchild_handler_child(int sig){
     while(waitpid(-1,NULL,0)>0){
-        kill(getpid(),SIGCONT);
+
     }
+    SEND_CONTINUE(parent_pid);
 }
 
 void sigchild_handler(int sig){
@@ -12,7 +13,7 @@ void sigchild_handler(int sig){
    while( (pid=waitpid(-1,NULL,0))>0){
        if(pid==child_pid){
            child_pid=0;
-           kill(parent_pid,SIGCONT);
+           SEND_CONTINUE(parent_pid);
        }
        // access to jobs, make state running to dead
    }
@@ -21,23 +22,17 @@ void sigchild_handler(int sig){
 
 void sigint_handler(int sig){
     
-    // pd("sig int");
     if(child_pid) {
-        // printf("%d",child_pid);
         SEND_INT(child_pid);
+        waitpid(child_pid,NULL,0);
         SEND_CONTINUE(parent_pid);
         child_pid=0;
     }
 }
 
-// void sigint_handler_child(int sig){
-//     SEND_CONTINUE(parent_pid);
-//     kill(getpid(),SIGKILL);
-// }
+
 
 void sigtstp_handler(int sig){
-    
-    // pd("sig STOP");
     if(child_pid){
 
         printf("%d",child_pid);
@@ -47,11 +42,6 @@ void sigtstp_handler(int sig){
         child_pid=0;
     } 
 }
-
-// void sigtstp_handler_child(int sig){
-//     // SEND_CONTINUE(parent_pid);
-//     kill(getpid(),SIGSTOP);
-// }
 
 
 

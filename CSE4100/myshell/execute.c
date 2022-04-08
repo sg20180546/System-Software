@@ -1,59 +1,66 @@
 #include "execute.h"
 
-
-void execute_commands(struct command* cur_cmd){
-    pid_t pid;
+static void switch_case_cmd(struct command* cur_cmd);
+static void close_all(int p);
+void execute_commands(struct command* cur_cmd,int p){
     if(!cur_cmd){
-        return;
+        exit(0);
     }
-    // fprintf(stderr,"%s",cur_cmd->builtin->name);
-    if((pid=fork())==0){
-        if(cur_cmd->redirectfrom){
-            dup2(fds[READ_END],STDIN_FILENO);
-        }
-        
-        if(cur_cmd->redirectto){
-            dup2(fds[WRITE_END],STDOUT_FILENO);
-        } 
-    
-        close(fds[READ_END]); close(fds[WRITE_END]);
+    pid_t pid;
+    int i=0;
+    pipe(fds[i]);
 
-        
-        if(cur_cmd->f==FUNCTION){
-            execute_function_command(cur_cmd);
-        }else if(cur_cmd->f==ABSOLUTE){
-            // a(strcmp(cur_cmd->arguments[1],"test.txt")==0);
-            char path[20]="/bin/";
-            strcat(path,cur_cmd->builtin->name);
-            if(execv(path,cur_cmd->arguments)<0){
-                fprintf(stderr,"Executing falied\n");
+    while(cur_cmd){
+        pipe(fds[i+1]);
+        if(fork()==0){
+            if(cur_cmd->redirectfrom){
+                dup2(fds[i][READ_END],STDIN_FILENO);
             }
-        }else if(cur_cmd->f==RELATIVE){
-    
-            if(execv(cur_cmd->builtin->name,cur_cmd->arguments)<0){
-                fprintf(stderr,"MYSHELL: %s : No such executable file",cur_cmd->builtin->name);
+            if(cur_cmd->redirectto){
+                dup2(fds[i+1][WRITE_END],STDOUT_FILENO);
             }
+            close(fds[i][READ_END]); close(fds[i][WRITE_END]);
+            close(fds[i+1][READ_END]); close(fds[i+1][WRITE_END]);
+            switch_case_cmd(cur_cmd);
+            pd("no");
+        }else{
+            close(fds[i][READ_END]);
+            close(fds[i+1][WRITE_END]);
+            cur_cmd=cur_cmd->redirectto;
+            i++;
             
         }
-        
-    
-
-        exit(0);
-    }else{
-        waitpid(pid,NULL,0);
-        // pause();
-        if(!cur_cmd->redirectto){
-            close(fds[READ_END]); close(fds[WRITE_END]);
-        }
-        // fprintf(stderr,"waiting %s\n",cur_cmd->builtin->name);
-        execute_commands(cur_cmd->redirectto);
-
     }
 }
+
+
 
 void execute_function_command(struct command* func_cmd){
     if(func_cmd->f!=FUNCTION){
         fprintf(stderr,"FUNCTION COMMAND ERROR\n");
     }
     func_cmd->builtin->fp(func_cmd->arguments);
+}
+
+static void switch_case_cmd(struct command* cur_cmd){
+    if(cur_cmd->f==FUNCTION){
+        execute_function_command(cur_cmd);
+    }else if(cur_cmd->f==ABSOLUTE){
+        char path[20]="/bin/";
+        strcat(path,cur_cmd->builtin->name);
+        if(execv(path,cur_cmd->arguments)<0){
+            fprintf(stderr,"Executing falied\n");
+
+        }
+    }else if(cur_cmd->f==RELATIVE){
+        if(execv(cur_cmd->builtin->name,cur_cmd->arguments)<0){
+            fprintf(stderr,"MYSHELL: %s : No such executable file",cur_cmd->builtin->name);
+
+        }
+    }
+    exit(0);
+}
+static void close_all(int p){
+    close(fds[p][0]);
+    close(fds[p][1]);
 }
