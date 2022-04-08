@@ -1,11 +1,9 @@
 #include "sig.h"
 
 void sigchild_handler_child(int sig){
-    while(waitpid(-1,NULL,0)>0){
-
-    }
-    SEND_CONTINUE(parent_pid);
+    while(waitpid(-1,NULL,0)>0);
 }
+
 
 void sigchild_handler(int sig){
    // send SIGCONT to myself
@@ -14,8 +12,10 @@ void sigchild_handler(int sig){
        if(pid==child_pid){
            child_pid=0;
            SEND_CONTINUE(parent_pid);
+       }else{
+           int index=find_jobs_by_pid(pid);
+           jobs_list[index]->state=TERMINATED;
        }
-       // access to jobs, make state running to dead
    }
 }
 
@@ -38,7 +38,8 @@ void sigtstp_handler(int sig){
         printf("%d",child_pid);
         SEND_TSTP(child_pid);
         SEND_CONTINUE(parent_pid);
-        pd("Stopped");
+        insert_jobs(child_pid,buf,SUSPENDED);
+        printf("\n[%d] Stopped %s\n",jobs_rear-1,buf);
         child_pid=0;
     } 
 }
@@ -50,20 +51,3 @@ void sigtstp_handler(int sig){
 
 
 
-
-
-void sigttou_handler(int sig){
-    SEND_KILL(parent_pid);
-    exit(0);    
-    fprintf(stderr,"sig ttou come!\n");
-    kill(parent_pid,SIGCONT);
-}
-
-
-void sigttin_handler(int sig){
-    fprintf(stderr,"sig ttin come!\n");
-}
-
-void sigpipe_handler(int sig){
-    fprintf(stderr,"sig pipe come!\n");
-}

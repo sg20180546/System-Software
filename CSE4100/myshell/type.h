@@ -47,7 +47,7 @@ struct command{
     
 };
 typedef enum{
-    RUNNING,STOPPED,TERMINATED
+    RUNNING,SUSPENDED,TERMINATED
 }STATE;
 
 
@@ -56,7 +56,6 @@ typedef struct _JOB{
     pid_t pgid;
     STATE state;
     char* cmdline;
-    int foreground;   
 }JOB;
 
 

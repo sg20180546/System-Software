@@ -8,5 +8,4 @@
 
 char cmdline[MAXLINE];
 
-
 #endif

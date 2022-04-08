@@ -4,16 +4,19 @@
 #include "common.h"
 #include "type.h"
 #include "interperter.h"
+#include "./module/jobs.h"
 
 #define SEND_CONTINUE(x) kill(x,SIGCONT)
 #define SEND_INT(x) kill(x,SIGINT)
 #define SEND_TSTP(x) kill(x,SIGTSTP)
 #define SEND_KILL(x) kill(x,SIGKILL)
 #define SEND_USR1(x) kill(x,SIGUSR1)
-
+#define SEND_STOP(x) kill(x,SIGSTOP);
 int foreground_job;
 
 void sigchild_handler_child(int sig);
+
+void sigchild_handler_back(int sig);
 
 void sigchild_handler(int sig);
 

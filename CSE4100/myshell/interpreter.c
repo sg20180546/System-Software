@@ -15,8 +15,7 @@ static struct command* is_variable(char* cmdline,int* pos);
 static status find_arguments(struct command** cmd,char *cmdline,unsigned int* pos);
 static void free_command_list(struct command* cmd);
 static void free_command(struct command* cmd);
-unsigned int    running_background_jobs_front=0;
-unsigned int    running_background_jobs_rear=0;
+
 int    num_variable=0;
 int    variable_list_size=1;
 int    num_builtin_command=CMD_VARIABLE-1;
@@ -24,18 +23,22 @@ int    num_builtin_command=CMD_VARIABLE-1;
 
 
 void interpreter(char* cmdline){
+
     sigset_t mask;
     sigemptyset(&mask);
-    write(1,">",1);
+    getcwd(buf,MAXLINE);
+    printf("%s>",buf);
     fgets(cmdline,MAXLINE,stdin);
     if(feof(stdin)) exit(0);
 
+    if(jobs_done[0]) print_done_jobs();
+    
     status status=NOCOMMANDERR;
     struct command* first_command,*last_command;
     first_command=last_command=NULL;
 
     MODE mode=FOREGROUND;
-    char buf[MAXLINE];
+
     strcpy(buf,cmdline);
 
     if(status==BUFFERING) status=parser(buf,&last_command,&last_command,&mode);
@@ -49,28 +52,23 @@ void interpreter(char* cmdline){
         first_command=buf;
             
         }
-    if((child_pid=fork())==0){
-        // close(fds[READ_END]); close(fds[WRITE_END]);
-        // child_pid2=getpid();
-        // insert_jobs(child_pid2,buf,mode);
+    pid_t pid=fork();
+    if(pid&&mode==FOREGROUND) child_pid=pid;
+    else if(pid&&mode==BACKGROUND){
+        printf("[%d] : %s",jobs_rear,buf);
+        insert_jobs(pid,buf,RUNNING);
+    }
 
-        // setpgrp();
+
+    if(pid==0){
+
         signal(SIGINT,SIG_DFL);
-        signal(SIGSTOP,SIG_DFL);
-        signal(SIGCHLD,SIG_DFL);
+        signal(SIGTSTP,SIG_DFL);
         signal(SIGCHLD,sigchild_handler_child);
         switch (status)
         {
         case OK:
             // if background job, wait at child
-            if(mode==BACKGROUND){
-                // make new process group id
-                printf("[BG] %d : %s\n",child_pid,buf);
-                
-
-                execute_commands(first_command,0);
-                exit(0);
-            }
 
             execute_commands(first_command,0);
             break;
@@ -86,16 +84,19 @@ void interpreter(char* cmdline){
         default:
             break;
         }
+
         sigsuspend(&mask);
+        if(mode==BACKGROUND){
+
+        } 
         exit(0);
     }else{
         // if foreground job, wait at parent
         if(mode==FOREGROUND){
-            
-            // reap_dead_jobs();
+            reap_dead_jobs();
             sigsuspend(&mask);
         }else{
-
+            
 
         }
         free_command_list(first_command);
@@ -141,6 +142,7 @@ static status parser(char* cmdline,struct command** first_command,struct command
 
         if(cmdline[pos]==AMPERSAND){
             *mode=BACKGROUND;
+            pos++;
             while(whitespace(cmdline[pos])) pos++;
             if(cmdline[pos]!=ENTER){
                 status=SYNTAXERR;
@@ -250,7 +252,7 @@ static status find_arguments(struct command** cmd,char *cmdline,unsigned int* po
     strcpy((*cmd)->arguments[0],(*cmd)->builtin->name);
     for(;argc<MAXARGS;argc++){
 
-        
+        if(cmdline[*pos]==AMPERSAND) return status;        
         unsigned int i=*pos;
 
         int size=0;

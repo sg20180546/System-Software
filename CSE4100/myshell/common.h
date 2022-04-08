@@ -22,6 +22,7 @@
 #define ff(x) fprintf(stderr,"%s\n",(x) );
 pid_t parent_pid;
 pid_t child_pid;
+char buf[MAXLINE];
 // pid_t child_pid2;
 // pid_t son_pid;
 // sigjmp_buf jbuf;

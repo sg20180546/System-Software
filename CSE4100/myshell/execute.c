@@ -22,13 +22,11 @@ void execute_commands(struct command* cur_cmd,int p){
             close(fds[i][READ_END]); close(fds[i][WRITE_END]);
             close(fds[i+1][READ_END]); close(fds[i+1][WRITE_END]);
             switch_case_cmd(cur_cmd);
-            pd("no");
         }else{
             close(fds[i][READ_END]);
             close(fds[i+1][WRITE_END]);
             cur_cmd=cur_cmd->redirectto;
             i++;
-            
         }
     }
 }
