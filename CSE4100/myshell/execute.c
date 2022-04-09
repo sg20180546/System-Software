@@ -1,8 +1,8 @@
 #include "execute.h"
 
 static void switch_case_cmd(struct command* cur_cmd);
-static void close_all(int p);
-void execute_commands(struct command* cur_cmd,int p){
+
+void execute_commands(struct command* cur_cmd){
     if(!cur_cmd){
         exit(0);
     }
@@ -38,6 +38,8 @@ void execute_function_command(struct command* func_cmd){
         fprintf(stderr,"FUNCTION COMMAND ERROR\n");
     }
     func_cmd->builtin->fp(func_cmd->arguments);
+    pid_t pp=getppid();
+    SEND_CONTINUE(pp);
 }
 
 static void switch_case_cmd(struct command* cur_cmd){
@@ -57,8 +59,4 @@ static void switch_case_cmd(struct command* cur_cmd){
         }
     }
     exit(0);
-}
-static void close_all(int p){
-    close(fds[p][0]);
-    close(fds[p][1]);
 }

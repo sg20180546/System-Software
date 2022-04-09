@@ -11,19 +11,20 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h> 
-#define BUILTIN_PATH "../module/"
 #define MAXARGS 16
 #define MAXJOBS 1024
 #define MAXCMD 16
-#define BIN "/bin/"
 #define	MAXLINE	4096
 #define a(x) assert(x)
-#define pd(x) printf("%s\n",(x))
+
+
+#define pf(x) printf("%s\n",(x))
 #define ff(x) fprintf(stderr,"%s\n",(x) );
+
 pid_t parent_pid;
 pid_t child_pid;
+sigset_t mask;
 char buf[MAXLINE];
-// pid_t child_pid2;
-// pid_t son_pid;
-// sigjmp_buf jbuf;
+void safe_free(void * p);
+
 #endif

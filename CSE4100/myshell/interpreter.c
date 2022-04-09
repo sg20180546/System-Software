@@ -24,7 +24,7 @@ int    num_builtin_command=CMD_VARIABLE-1;
 
 void interpreter(char* cmdline){
 
-    sigset_t mask;
+
     sigemptyset(&mask);
     getcwd(buf,MAXLINE);
     printf("%s>",buf);
@@ -41,72 +41,72 @@ void interpreter(char* cmdline){
 
     strcpy(buf,cmdline);
 
-    if(status==BUFFERING) status=parser(buf,&last_command,&last_command,&mode);
-    else status=parser(buf,&first_command,&last_command,&mode);
-        if(first_command&&first_command->f==FUNCTION&&mode==FOREGROUND){
-            execute_function_command(first_command);
-            
+    status=parser(buf,&first_command,&last_command,&mode);
+
+    if(first_command&&first_command->f==FUNCTION&&mode==FOREGROUND){
+        execute_function_command(first_command);
             
         struct command* buf=first_command->redirectto;
         free_command(first_command);
         first_command=buf;
-            
-        }
+    }
     pid_t pid=fork();
-    if(pid&&mode==FOREGROUND) child_pid=pid;
-    else if(pid&&mode==BACKGROUND){
+    
+    if(pid){
+        if(mode==FOREGROUND){ 
+        child_pid=pid;
+        reap_dead_jobs();
+        sigsuspend(&mask);
+        }
+    else if(mode==BACKGROUND){
         printf("[%d] : %s",jobs_rear,buf);
         insert_jobs(pid,buf,RUNNING);
+        }
     }
 
 
     if(pid==0){
 
+        setpgrp();
+        tcsetpgrp(STDOUT_FILENO,getpid());
+        tcsetpgrp(STDIN_FILENO,getpid());
+
+        
+        
+
         signal(SIGINT,SIG_DFL);
         signal(SIGTSTP,SIG_DFL);
+        signal(SIGCHLD,SIG_DFL);
+        signal(SIGTSTP,sigtstp_handler_child);
         signal(SIGCHLD,sigchild_handler_child);
         switch (status)
-        {
-        case OK:
-            // if background job, wait at child
+            {
+            case OK:
 
-            execute_commands(first_command,0);
-            break;
-        case BUFFERING:
-            // goto l1;
-            break;
-        case SYNTAXERR:
-            write(1,"Syntax Error\n",14);
-            break;
-        case NOCOMMANDERR:
-            write(1,"No Command Error\n",18);
-            break;
-        default:
-            break;
-        }
-
+                execute_commands(first_command);
+                break;
+            case BUFFERING:
+                exit(0);
+                break;
+            case SYNTAXERR:
+                write(1,"Syntax Error\n",14);
+                exit(0);
+                break;
+            case NOCOMMANDERR:
+                write(1,"No Command Error\n",18);
+                exit(0);
+                break;
+            default:
+                break;
+            }
         sigsuspend(&mask);
-        if(mode==BACKGROUND){
-
-        } 
         exit(0);
-    }else{
-        // if foreground job, wait at parent
-        if(mode==FOREGROUND){
-            reap_dead_jobs();
-            sigsuspend(&mask);
-        }else{
-            
-
-        }
-        free_command_list(first_command);
     }
-    
+    signal(SIGTTOU, SIG_IGN);
+    signal(SIGTTIN, SIG_IGN);
+    free_command_list(first_command);    
 }
-// https://github.com/sg20180546/CSAPP/blob/d06045832b0586638365cce91e4cd876868f5faf/CSE4100/myshell/interpreter.c
-// find builtin name by binary search
-// need to make builtin main function, excecutable object file
-// builtin list-> in complile time? run time?
+
 static status parser(char* cmdline,struct command** first_command,struct command** last_command,MODE* mode){
     status status;
     unsigned int pos=0;
@@ -279,7 +279,7 @@ static status find_arguments(struct command** cmd,char *cmdline,unsigned int* po
         }else{
 
             while((!whitespace(cmdline[*pos])) ){
-                if(cmdline[*pos]==ENTER||cmdline[*pos]==PIPE){
+                if(cmdline[*pos]==ENTER||cmdline[*pos]==PIPE||cmdline[*pos]==AMPERSAND){
                     break;
                 }
                 (*pos)=(*pos)+1;
@@ -316,12 +316,12 @@ static void free_command(struct command* cmd){
     if(!cmd) return;
     for(i=0;i<(cmd->argc);i++){
         // if(!cmd->arguments[i]) continue;
-        free(cmd->arguments[i]);
+        safe_free(cmd->arguments[i]);
     }
     // a(cmd->arguments!=NULL);
-    free(cmd->arguments);
+    safe_free(cmd->arguments);
     // a(cmd->builtin!=NULL);
-    free(cmd->builtin);
+    safe_free(cmd->builtin);
     // a(cmd!=NULL);
-    free(cmd);
+    safe_free(cmd);
 }

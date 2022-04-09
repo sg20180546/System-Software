@@ -5,7 +5,7 @@
 
 // command* builtin_command;
 
-#define CMD_VARIABLE 20
+#define CMD_VARIABLE 21
 
 extern struct command command_list[CMD_VARIABLE];
 extern int num_builtin_command;

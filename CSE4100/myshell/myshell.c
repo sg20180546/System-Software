@@ -1,19 +1,11 @@
 #include "myshell.h"
+static void initialize();
 
-// [1] 20878 background [1]+  Done
 int main(){
-    
-    parent_pid=getpid();
-    
-    signal(SIGCHLD,sigchild_handler);
-    signal(SIGINT,sigint_handler);
-    signal(SIGTSTP,sigtstp_handler);
-    
-    // signal(SIGTTOU,sigttou_handler);
-    // signal(SIGTTIN,sigttin_handler);
-    // signal(SIGPIPE,sigpipe_handler);
-
-
+    #ifdef DEBUG
+        pd("DEBUGGING MODE");
+    #endif
+    initialize();
     while(1){
         interpreter(cmdline);
     }
@@ -21,3 +13,13 @@ int main(){
     return 0;
 }
 
+
+static void initialize(){
+    sigemptyset(&mask);
+    parent_pid=getpid();
+    signal(SIGCHLD,sigchild_handler);
+    signal(SIGINT,sigint_handler);
+    signal(SIGTSTP,sigtstp_handler);
+    signal(SIGTTIN,SIG_IGN);
+    signal(SIGTTOU,SIG_IGN);
+}

@@ -17,6 +17,7 @@ struct command command_list[CMD_VARIABLE]={
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"less"}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"ls"}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"mkdir"}},
+    {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"more"}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"ps"}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"pwd"}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"rmdir"}},
