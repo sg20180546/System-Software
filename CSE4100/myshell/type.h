@@ -1,10 +1,11 @@
 #ifndef _TYPE_H_
-#include <unistd.h>
-#include <stdio.h>
-#include <signal.h>
+#define _TYPE_H_
+#include "common.h"
+#include "type.h"
 
 
-
+extern int num_variable;
+extern int variable_list_size;
 typedef struct _bool{
  unsigned v:1;
 }bool;
@@ -13,41 +14,55 @@ typedef enum _status{
     OK,BUFFERING,SYNTAXERR,NOCOMMANDERR
 } status;
 
+typedef enum _mode{
+BACKGROUND,FOREGROUND
+}MODE;
+
 typedef enum _flag{
-    STATIC,VARIABLE
+    ABSOLUTE,VARIABLE,FUNCTION,RELATIVE
 }cmd_flag;
 
-
-typedef struct _static_command{
+typedef struct _builtin{
     char* name;
-    // void (*argument_checker)(char*,char*);
-} static_command;
-
+    void (*fp)(char**);
+}builtin;
 
 typedef struct _variable{
     char* key;
     char* value;
 }variable;
 
-typedef struct _command{
+
+struct command{
+    unsigned short argc;
     char** arguments;
     cmd_flag f;
-    command* redirectto;
-    command* redirectfrom;
-    bool is_redirecting;
+    struct command* redirectto;
+    struct command* redirectfrom;
     union
     {
-        static_command* static_cmd;
-        variable* variable
+        builtin* builtin;
+        variable* variable;
     };
-} command;
+    
+};
+typedef enum{
+    RUNNING,SUSPENDED,TERMINATED
+}STATE;
+
+
+
+typedef struct _JOB{
+    pid_t pgid;
+    STATE state;
+    char* cmdline;
+}JOB;
 
 
 
 variable** variable_list;
 
-int num_variable=0;
-int variable_list_size=1;
+
 
 
 
