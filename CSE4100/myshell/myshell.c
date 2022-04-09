@@ -24,6 +24,7 @@ static void initialize(){
     signal(SIGTTIN,SIG_IGN);
     signal(SIGTTOU,SIG_IGN);
     signal(SIGUSR1,SIG_IGN);
+    signal(SIGUSR2,SIG_IGN);
     jobs_front=1;
     jobs_rear=1;
     jobs_n=0;

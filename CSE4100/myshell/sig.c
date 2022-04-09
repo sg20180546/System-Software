@@ -2,7 +2,8 @@
 
 void sigchild_handler_child(int sig){
     pid_t pid=getpid();
-    while(waitpid(-1,NULL,0)>0);
+    while(waitpid(0,NULL,0)>0);
+
     SEND_CONTINUE(pid);
 }
 
@@ -12,7 +13,6 @@ void sigchild_handler(int sig){
    while( (pid=waitpid(-1,NULL,WNOHANG))>0){
        if(pid==child_pid){
            child_pid=0;
-        //    pd("here?!");
            SEND_CONTINUE(parent_pid);
        }else{
            
@@ -43,7 +43,7 @@ void sigint_handler(int sig){
 void sigtstp_handler(int sig){
     if(child_pid){
         // printf("at handler%d\n",child_pid);
-        SEND_TSTP(child_pid);
+        
         
         insert_jobs(child_pid,buf,SUSPENDED);
         printf("[%d] Stopped %s\n",jobs_rear-1,buf);
@@ -67,9 +67,22 @@ void sigusr1_handler(int sig){
         p=pid_list[i];
         SEND_CONTINUE(p);
     }
+    tcsetpgrp(STDIN_FILENO,getpid());
+    tcsetpgrp(STDOUT_FILENO,getpid());
+    sigsuspend(&mask);
 }
 void sigusr2_handler(int sig){
-    
+    int i;
+
+    pid_t p;
+    for(i=0;pid_list[i];i++){
+        p=pid_list[i];
+        // fprintf(stderr,"in fork : %d\n",p);
+        SEND_KILL(p);
+    }
+    // p=getpid();
+    // SEND_KILL(p);
+    _exit(0);
 }
 
 

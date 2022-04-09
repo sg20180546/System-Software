@@ -17,8 +17,9 @@ void insert_jobs(pid_t pgid,char* cmdline,STATE state){
 void print_jobs(char** argv){
     int i;
     for(i=jobs_front;i<jobs_rear;i++){
-        if(!jobs_list[i]) continue;
-        printf("[%d] ",i);
+        char c=jobs_list[i]->cmdline[0];
+        if(!jobs_list[i]->cmdline) continue;
+        fprintf(stdout,"[%d] ",i);
         switch(jobs_list[i]->state){
             case RUNNING:
                 printf("RUNNING    ");
@@ -32,12 +33,13 @@ void print_jobs(char** argv){
             default:
                 break;
         }
-        printf("%s",jobs_list[i]->cmdline);
+        if(jobs_list[i]->cmdline) printf("%s",jobs_list[i]->cmdline);
     }
 }
 
 void print_done_jobs(){
     int i=0;
+    int flag=0;
     while(jobs_done[i]){
         printf("[%d] Done %s",jobs_done[i],jobs_list[jobs_done[i]]->cmdline);
         safe_free(jobs_list[jobs_done[i]]->cmdline);
@@ -78,6 +80,7 @@ int find_jobs_by_pid(pid_t pid){
 // bg argv[1] -> PROCESS LIST NUMBER , PROCESS NAME
 // hashing ? 
 void fg(char** argv){
+    fflush(stdin); fflush(stdout);
     if(!argv[1]||!argv[1][1] ){
         fprintf(stderr,"Usage : %s %%<job spec>\n",argv[0]);
         return;
@@ -99,7 +102,7 @@ void fg(char** argv){
         return;
     }
     child_pid=jobs_list[index]->pgid;
-    fprintf(stderr,"fg : %d %s",child_pid,jobs_list[index]->cmdline);
+    printf("%s",jobs_list[index]->cmdline);
     jobs_n--;    
     
    
@@ -108,9 +111,9 @@ void fg(char** argv){
 
     SEND_CONTINUE(child_pid);
     SEND_USR1(child_pid);
-
-    pause();
+    waitpid(child_pid,NULL,0);
 }
+
 
 
 void bg(char** argv){
@@ -136,10 +139,9 @@ void bg(char** argv){
     }
     jobs_list[index]->state=RUNNING;
     child_p=jobs_list[index]->pgid;
-    printf("[%d] %s &",index,jobs_list[index]->cmdline);
+    printf("[%d] %s",index,jobs_list[index]->cmdline);
     SEND_CONTINUE(child_p);
     SEND_USR1(child_p);
-    int i;
     // parse argv[1]
     // if(argv[1]==number) find process in list
     // if(argv[1]==name) find process in list
@@ -150,6 +152,33 @@ void bg(char** argv){
     // send signal to child to SIGCONT
 
     // after child, parent getup
+}
+
+void kill_job(char** argv){
+    if(!argv[1]||!argv[1][1] ){
+        fprintf(stderr,"Usage : %s %%<job spec>\n",argv[0]);
+        return;
+    }
+    int index=job_index_parser(&argv[1][1]);
+    pid_t child_p;
+
+    if(!index){
+        index=find_job_by_command(argv[1]);
+    }else if(argv[1][0]!='%'){
+        fprintf(stderr,"Usage : %s %%<job spec>",argv[0]);
+    }
+    if(!jobs_list[index]){
+        fprintf(stderr,"No Such job\n");
+        return;
+    } 
+    if(jobs_list[index]->state==TERMINATED){
+        fprintf(stderr,"[%d] Already Terminated job\n",index);
+        return;
+    }
+    jobs_list[index]->state=TERMINATED;
+    child_p=jobs_list[index]->pgid;
+    SEND_USR2(child_p);
+
 }
 
 

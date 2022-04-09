@@ -43,7 +43,7 @@ void interpreter(char* cmdline){
 
     status=parser(buf,&first_command,&last_command,&mode);
 
-    if(first_command&&first_command->f==FUNCTION&&mode==FOREGROUND){
+    if(first_command&&first_command->f==FUNCTION&&mode==FOREGROUND&&!first_command->redirectto){
         execute_function_command(first_command);
         struct command* buf=first_command->redirectto;
         free_command(first_command);
@@ -63,9 +63,15 @@ void interpreter(char* cmdline){
         }
     }
 
-
     if(pid==0){
         if(!first_command) exit(0);
+        signal(SIGINT,SIG_DFL);
+        signal(SIGTSTP,sigtstp_handler_child);
+        signal(SIGCHLD,sigchild_handler_child);
+        signal(SIGUSR1,sigusr1_handler);
+        signal(SIGUSR2,sigusr2_handler);
+
+
         setpgrp();
         if(mode==FOREGROUND){
             tcsetpgrp(STDOUT_FILENO,getpid());
@@ -76,12 +82,7 @@ void interpreter(char* cmdline){
         
         
 
-        signal(SIGINT,SIG_DFL);
-        signal(SIGTSTP,SIG_DFL);
-        signal(SIGCHLD,SIG_DFL);
-        signal(SIGTSTP,sigtstp_handler_child);
-        signal(SIGCHLD,sigchild_handler_child);
-        signal(SIGUSR1,sigusr1_handler);
+
         switch (status)
             {
             case OK:
@@ -105,8 +106,6 @@ void interpreter(char* cmdline){
         sigsuspend(&mask);
         exit(0);
     }
-    signal(SIGTTOU, SIG_IGN);
-    signal(SIGTTIN, SIG_IGN);
     free_command_list(first_command);    
 }
 

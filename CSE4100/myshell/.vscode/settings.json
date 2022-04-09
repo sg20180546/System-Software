@@ -2,6 +2,8 @@
     "files.associations": {
         "execute.h": "c",
         "jobs.h": "c",
-        "builtin.h": "c"
+        "builtin.h": "c",
+        "sig.h": "c",
+        "myshell.h": "c"
     }
 }

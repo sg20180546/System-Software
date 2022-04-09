@@ -31,6 +31,8 @@ void bg(char** argv);
 
 // if fg, sigstop to main process, sigcont to bg process
 void fg(char** argv);
+
+void kill_job(char** argv);
 #endif
 
 

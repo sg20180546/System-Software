@@ -13,7 +13,7 @@ struct command command_list[CMD_VARIABLE]={
     {0,NULL,FUNCTION,NULL,NULL,&(builtin){"fg",fg}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"grep"}},
     {0,NULL,FUNCTION,NULL,NULL,&(builtin){"jobs",print_jobs}},
-    {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"kill"}},
+    {0,NULL,FUNCTION,NULL,NULL,&(builtin){"kill",kill_job}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"less"}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"ls"}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"mkdir"}},
