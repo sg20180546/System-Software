@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "execute.h": "c"
+        "execute.h": "c",
+        "jobs.h": "c",
+        "builtin.h": "c"
     }
 }

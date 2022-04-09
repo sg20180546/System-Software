@@ -6,15 +6,15 @@
 #include "../type.h"
 #include "../sig.h"
 
-extern int jobs_front;
-extern int jobs_rear;
-extern int jobs_n;
+int jobs_front;
+int jobs_rear;
+int jobs_n;
 // hasing name -> one time random access
 // save current jobs number
 // if garbage collection remove last job, init jobs number=0
 JOB* jobs_list[MAXJOBS];
 int jobs_done[MAXJOBS];
-
+pid_t pid_list[MAXCMD];
 
 void insert_jobs(pid_t pgid,char* cmdline,STATE state);
 

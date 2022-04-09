@@ -3,6 +3,7 @@
 #include "common.h"
 #include "type.h"
 #include "sig.h"
+#include "./module/jobs.h"
 #define READ_END 0
 #define WRITE_END 1
 int fds[MAXCMD][2];

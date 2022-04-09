@@ -20,8 +20,8 @@ void sigchild_handler(int sig){
            jobs_list[index]->state=TERMINATED;
        }
    }
-    tcsetpgrp(STDIN_FILENO,getpid());
-    tcsetpgrp(STDOUT_FILENO,getpid());
+    tcsetpgrp(STDIN_FILENO,parent_pid);
+    tcsetpgrp(STDOUT_FILENO,parent_pid);
 }
 
 
@@ -29,7 +29,6 @@ void sigchild_handler(int sig){
 void sigint_handler(int sig){
     
     if(child_pid) {
-
         SEND_INT(child_pid);
         waitpid(child_pid,NULL,0);
 
@@ -43,30 +42,36 @@ void sigint_handler(int sig){
 
 void sigtstp_handler(int sig){
     if(child_pid){
-        printf("at handler%d\n",child_pid);
+        // printf("at handler%d\n",child_pid);
         SEND_TSTP(child_pid);
         
         insert_jobs(child_pid,buf,SUSPENDED);
         printf("[%d] Stopped %s\n",jobs_rear-1,buf);
-        child_pid=0;
     }
+    child_pid=0;
     SEND_CONTINUE(parent_pid);
 }
 
 void sigtstp_handler_child(int sig){
     pid_t pid=getpid();
-    SEND_CONTINUE(parent_pid);
+    SEND_TSTP(parent_pid);
+    tcsetpgrp(STDIN_FILENO,parent_pid);
+    tcsetpgrp(STDOUT_FILENO,parent_pid);
     SEND_STOP(pid);
 }
 
-
-void sigttou_handler(int sig){
-   tcsetpgrp(STDOUT_FILENO,getpid());
+void sigusr1_handler(int sig){
+    int i;
+    pid_t p;
+    for(i=0;pid_list[i];i++){  
+        p=pid_list[i];
+        SEND_CONTINUE(p);
+    }
+}
+void sigusr2_handler(int sig){
+    
 }
 
-void sigttin_handler(int sig){
-    tcsetpgrp(STDIN_FILENO,getpid());
-}
 
 
 

@@ -1,7 +1,5 @@
 #include "jobs.h"
 
-int jobs_rear=1; int jobs_n=0; int jobs_front=1;
-
 static int job_index_parser(char* arg);
 static int find_job_by_command(char* arg);
 
@@ -10,9 +8,8 @@ void insert_jobs(pid_t pgid,char* cmdline,STATE state){
     JOB* job=malloc(sizeof(JOB));
     job->cmdline=malloc(strlen(cmdline));
     strcpy(job->cmdline,cmdline);
-    
     job->pgid=pgid;
-    printf("inserting %d\n",job->pgid);
+    // printf("inserting %d\n",job->pgid);
     job->state=state;
     jobs_list[jobs_rear++]=job;
 }
@@ -101,16 +98,18 @@ void fg(char** argv){
         fprintf(stderr,"[%d] Already Terminated job\n",index);
         return;
     }
-
-    jobs_n--;    
     child_pid=jobs_list[index]->pgid;
+    fprintf(stderr,"fg : %d %s",child_pid,jobs_list[index]->cmdline);
+    jobs_n--;    
+    
    
     safe_free(jobs_list[index]->cmdline); 
     safe_free(jobs_list[index]);
 
-    fprintf(stderr,"fg : %d\n",child_pid);
     SEND_CONTINUE(child_pid);
-    sigsuspend(&mask);
+    SEND_USR1(child_pid);
+
+    pause();
 }
 
 
@@ -137,8 +136,10 @@ void bg(char** argv){
     }
     jobs_list[index]->state=RUNNING;
     child_p=jobs_list[index]->pgid;
-    fprintf(stderr,"%d\n",child_p);
+    printf("[%d] %s &",index,jobs_list[index]->cmdline);
     SEND_CONTINUE(child_p);
+    SEND_USR1(child_p);
+    int i;
     // parse argv[1]
     // if(argv[1]==number) find process in list
     // if(argv[1]==name) find process in list

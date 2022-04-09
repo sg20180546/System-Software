@@ -3,6 +3,7 @@
 static void switch_case_cmd(struct command* cur_cmd);
 
 void execute_commands(struct command* cur_cmd){
+    
     if(!cur_cmd){
         exit(0);
     }
@@ -12,7 +13,7 @@ void execute_commands(struct command* cur_cmd){
 
     while(cur_cmd){
         pipe(fds[i+1]);
-        if(fork()==0){
+        if((pid=fork())==0){
             if(cur_cmd->redirectfrom){
                 dup2(fds[i][READ_END],STDIN_FILENO);
             }
@@ -26,6 +27,7 @@ void execute_commands(struct command* cur_cmd){
             close(fds[i][READ_END]);
             close(fds[i+1][WRITE_END]);
             cur_cmd=cur_cmd->redirectto;
+            pid_list[i]=pid;
             i++;
         }
     }

@@ -45,7 +45,6 @@ void interpreter(char* cmdline){
 
     if(first_command&&first_command->f==FUNCTION&&mode==FOREGROUND){
         execute_function_command(first_command);
-            
         struct command* buf=first_command->redirectto;
         free_command(first_command);
         first_command=buf;
@@ -66,10 +65,13 @@ void interpreter(char* cmdline){
 
 
     if(pid==0){
-
+        if(!first_command) exit(0);
         setpgrp();
-        tcsetpgrp(STDOUT_FILENO,getpid());
-        tcsetpgrp(STDIN_FILENO,getpid());
+        if(mode==FOREGROUND){
+            tcsetpgrp(STDOUT_FILENO,getpid());
+            tcsetpgrp(STDIN_FILENO,getpid());
+        }
+
 
         
         
@@ -79,6 +81,7 @@ void interpreter(char* cmdline){
         signal(SIGCHLD,SIG_DFL);
         signal(SIGTSTP,sigtstp_handler_child);
         signal(SIGCHLD,sigchild_handler_child);
+        signal(SIGUSR1,sigusr1_handler);
         switch (status)
             {
             case OK:
@@ -297,7 +300,6 @@ static status find_arguments(struct command** cmd,char *cmdline,unsigned int* po
         }
     }
     (*cmd)->arguments[argc]=NULL;
-    // printf("%s  len : %ld \n",(*cmd)->builtin->name,strlen((*cmd)->arguments[1]));
     (*cmd)->argc=argc;
 
     return status;

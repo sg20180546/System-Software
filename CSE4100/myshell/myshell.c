@@ -6,6 +6,7 @@ int main(){
         pd("DEBUGGING MODE");
     #endif
     initialize();
+
     while(1){
         interpreter(cmdline);
     }
@@ -22,4 +23,8 @@ static void initialize(){
     signal(SIGTSTP,sigtstp_handler);
     signal(SIGTTIN,SIG_IGN);
     signal(SIGTTOU,SIG_IGN);
+    signal(SIGUSR1,SIG_IGN);
+    jobs_front=1;
+    jobs_rear=1;
+    jobs_n=0;
 }
