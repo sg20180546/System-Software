@@ -4,6 +4,7 @@
         "jobs.h": "c",
         "builtin.h": "c",
         "sig.h": "c",
-        "myshell.h": "c"
+        "myshell.h": "c",
+        "interperter.h": "c"
     }
 }

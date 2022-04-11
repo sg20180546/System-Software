@@ -1,5 +1,5 @@
 
 
-shell : 
-	gcc -o shell *.c ./module/*.c
+myshell : 
+	gcc -o myshell *.c ./module/*.c
 

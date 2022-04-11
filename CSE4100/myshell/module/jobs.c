@@ -17,7 +17,6 @@ void insert_jobs(pid_t pgid,char* cmdline,STATE state){
 void print_jobs(char** argv){
     int i;
     for(i=jobs_front;i<jobs_rear;i++){
-        char c=jobs_list[i]->cmdline[0];
         if(!jobs_list[i]->cmdline) continue;
         fprintf(stdout,"[%d] ",i);
         switch(jobs_list[i]->state){
@@ -70,7 +69,10 @@ int find_jobs_by_pid(pid_t pid){
     while(!jobs_list[i]) i++;
     jobs_front=i;
     for(;i<jobs_rear;i++){
-        if(jobs_list[i]->pgid==pid) ret=i;
+        if(jobs_list[i]->pgid==pid){
+            ret=i;
+            break;
+        }
     }
     return ret;
 }
@@ -79,6 +81,7 @@ int find_jobs_by_pid(pid_t pid){
 
 // bg argv[1] -> PROCESS LIST NUMBER , PROCESS NAME
 // hashing ? 
+// fg bug -> sleep 30 / cltz / fg %1 / clt z
 void fg(char** argv){
     fflush(stdin); fflush(stdout);
     if(!argv[1]||!argv[1][1] ){
@@ -86,7 +89,7 @@ void fg(char** argv){
         return;
     }
     int index=job_index_parser(&argv[1][1]);
-    pid_t child_p;
+
     
     if(!index){
         index=find_job_by_command(argv[1]);
@@ -101,17 +104,20 @@ void fg(char** argv){
         fprintf(stderr,"[%d] Already Terminated job\n",index);
         return;
     }
-    child_pid=jobs_list[index]->pgid;
-    printf("%s",jobs_list[index]->cmdline);
-    jobs_n--;    
     
-   
-    safe_free(jobs_list[index]->cmdline); 
-    safe_free(jobs_list[index]);
-
+    child_pid=jobs_list[index]->pgid;
+    printf("Resumed [%d] %s",index,jobs_list[index]->cmdline);
+    strcpy(buf,jobs_list[index]->cmdline);
+    free(jobs_list[index]->cmdline); 
+    free(jobs_list[index]);
+    jobs_n--;
+    tcsetpgrp(child_pid,STDIN_FILENO);
+    tcsetpgrp(child_pid,STDOUT_FILENO);
     SEND_CONTINUE(child_pid);
     SEND_USR1(child_pid);
-    waitpid(child_pid,NULL,0);
+
+    sigsuspend(&mask);
+
 }
 
 
@@ -142,16 +148,6 @@ void bg(char** argv){
     printf("[%d] %s",index,jobs_list[index]->cmdline);
     SEND_CONTINUE(child_p);
     SEND_USR1(child_p);
-    // parse argv[1]
-    // if(argv[1]==number) find process in list
-    // if(argv[1]==name) find process in list
-    // IF not exist, return with notfounderror
-
-    // send signal to parent to sleep
-
-    // send signal to child to SIGCONT
-
-    // after child, parent getup
 }
 
 void kill_job(char** argv){

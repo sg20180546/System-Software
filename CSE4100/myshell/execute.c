@@ -25,7 +25,7 @@ void execute_commands(struct command* cur_cmd){
             switch_case_cmd(cur_cmd);
         }else{
             close(fds[i][READ_END]);
-            close(fds[i+1][WRITE_END]);
+            close(fds[i+1][WRITE_END]); close(fds[i][WRITE_END]);
             cur_cmd=cur_cmd->redirectto;
             pid_list[i]=pid;
             i++;
@@ -48,10 +48,14 @@ static void switch_case_cmd(struct command* cur_cmd){
     if(cur_cmd->f==FUNCTION){
         execute_function_command(cur_cmd);
     }else if(cur_cmd->f==ABSOLUTE){
-        char path[20]="/bin/";
-        strcat(path,cur_cmd->builtin->name);
-        if(execv(path,cur_cmd->arguments)<0){
-            fprintf(stderr,"Executing falied\n");
+        char bin[20]="/bin/";
+        char usr_bin[23]="/usr/bin/";
+        strcat(bin,cur_cmd->builtin->name);
+        if(execv(bin,cur_cmd->arguments)<0){
+            strcat(usr_bin,cur_cmd->builtin->name);
+            if(execv(usr_bin,cur_cmd->arguments)<0){
+                fprintf(stderr,"Executing falied\n");    
+            }
 
         }
     }else if(cur_cmd->f==RELATIVE){

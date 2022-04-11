@@ -19,7 +19,7 @@ BACKGROUND,FOREGROUND
 }MODE;
 
 typedef enum _flag{
-    ABSOLUTE,VARIABLE,FUNCTION,RELATIVE
+    ABSOLUTE,FUNCTION,RELATIVE
 }cmd_flag;
 
 typedef struct _builtin{

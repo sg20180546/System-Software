@@ -16,9 +16,6 @@ static status find_arguments(struct command** cmd,char *cmdline,unsigned int* po
 static void free_command_list(struct command* cmd);
 static void free_command(struct command* cmd);
 
-int    num_variable=0;
-int    variable_list_size=1;
-int    num_builtin_command=CMD_VARIABLE-1;
 
 
 
@@ -52,7 +49,7 @@ void interpreter(char* cmdline){
     pid_t pid=fork();
     
     if(pid){
-        if(mode==FOREGROUND){ 
+        if(mode==FOREGROUND){
         child_pid=pid;
         reap_dead_jobs();
         sigsuspend(&mask);
@@ -62,21 +59,26 @@ void interpreter(char* cmdline){
         insert_jobs(pid,buf,RUNNING);
         }
     }
+    
+
 
     if(pid==0){
-        if(!first_command) exit(0);
+        pid=getpid();
         signal(SIGINT,SIG_DFL);
-        signal(SIGTSTP,sigtstp_handler_child);
+
         signal(SIGCHLD,sigchild_handler_child);
         signal(SIGUSR1,sigusr1_handler);
         signal(SIGUSR2,sigusr2_handler);
-
-
+        if(!first_command){
+            if(status==NOCOMMANDERR) write(1,"No Command Error\n",18);
+            exit(0);
+        }
         setpgrp();
         if(mode==FOREGROUND){
-            tcsetpgrp(STDOUT_FILENO,getpid());
-            tcsetpgrp(STDIN_FILENO,getpid());
+            if(tcsetpgrp(STDOUT_FILENO,pid)<0) ff("error stdout");
+            if(tcsetpgrp(STDIN_FILENO,pid)<0) ff("error stdin");
         }
+
 
 
         
@@ -104,6 +106,7 @@ void interpreter(char* cmdline){
                 break;
             }
         sigsuspend(&mask);
+
         exit(0);
     }
     free_command_list(first_command);    
@@ -132,13 +135,13 @@ static status parser(char* cmdline,struct command** first_command,struct command
         }
         previous_command=cbuf;
 
-        if(cbuf->f!=VARIABLE){
-            while(whitespace(cmdline[pos])) pos++;
+
+        while(whitespace(cmdline[pos])) pos++;
             status=find_arguments(&cbuf,cmdline,&pos);
             if(status!=OK){
                 return status;
             }
-        }
+
         
       while(whitespace(cmdline[pos])) pos++;
 
@@ -162,7 +165,8 @@ static status parser(char* cmdline,struct command** first_command,struct command
 static status find_shell_command(char* cmdline,int* pos,struct command** cbuf){
         status status=OK;
         (*cbuf)=NULL;
-        short low=0,high=num_builtin_command,mid;
+        short low=0,high=num_command;
+        short mid;
         
         if(cmdline[*pos]=='.'){
            
@@ -233,7 +237,7 @@ static struct command* is_variable(char* cmdline,int* pos){
     while(!whitespace(cmdline[*pos])) *pos++;
         
     cmd=calloc(1,sizeof(struct command));
-    cmd->f=VARIABLE;
+    // cmd->f=VARIABLE;
     cmd->variable=calloc(1,sizeof(variable));
     cmd->variable->key=calloc(1,j-i);
     cmd->variable->value=calloc(1, (*pos)-j );
