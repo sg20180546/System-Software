@@ -29,7 +29,7 @@ void sigchild_handler(int sig){
                 if(index!=-1) jobs_list[index]->state=TERMINATED;
             }
        }else{
-           printf("st : %d\n",st);
+           sigsuspend(&mask);
        }
    }
     tcsetpgrp(STDIN_FILENO,parent_pid);

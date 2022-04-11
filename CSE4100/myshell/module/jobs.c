@@ -82,6 +82,7 @@ int find_jobs_by_pid(pid_t pid){
 // hashing ? 
 // fg bug -> sleep 30 / cltz / fg %1 / clt z
 void fg(char** argv){
+    int st;
     fflush(stdin); fflush(stdout);
     if(!argv[1]||!argv[1][1] ){
         fprintf(stderr,"Usage : %s %%<job spec>\n",argv[0]);
@@ -114,9 +115,12 @@ void fg(char** argv){
     tcsetpgrp(child_pid,STDOUT_FILENO);
     SEND_CONTINUE(child_pid);
     SEND_USR1(child_pid);
-
-    sigsuspend(&mask);
-
+    
+    waitpid(child_pid,&st,WUNTRACED);
+    if(WIFSTOPPED(st)){
+        insert_jobs(child_pid,buf,SUSPENDED);
+        printf("[%d] Stopped %s\n",jobs_rear-1,buf);
+    }
 }
 
 
