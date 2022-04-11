@@ -9,7 +9,6 @@ void insert_jobs(pid_t pgid,char* cmdline,STATE state){
     job->cmdline=malloc(strlen(cmdline));
     strcpy(job->cmdline,cmdline);
     job->pgid=pgid;
-    // printf("inserting %d\n",job->pgid);
     job->state=state;
     jobs_list[jobs_rear++]=job;
 }

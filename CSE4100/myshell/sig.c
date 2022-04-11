@@ -5,7 +5,6 @@ void sigchild_handler_child(int sig){
     int st;
     while(waitpid(0,&st,WUNTRACED)>0){
         if(WIFSTOPPED(st)){
-            // SEND_CONTINUE(parent_pid);
             SEND_STOP(pid);
         }
     }
@@ -30,7 +29,7 @@ void sigchild_handler(int sig){
                 if(index!=-1) jobs_list[index]->state=TERMINATED;
             }
        }else{
-        //    sigsuspend(&mask);
+           printf("st : %d\n",st);
        }
    }
     tcsetpgrp(STDIN_FILENO,parent_pid);
