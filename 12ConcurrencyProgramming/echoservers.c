@@ -63,7 +63,7 @@ void add_client(int connfd,pool* p){
     if(i==FD_SETSIZE) app_error("add_client error:Too many clients");
 }
 
-void check_clients(pool *p){
+void check_client(pool *p){
     int i,connfd,n;
     char buf[MAXLINE];
     rio_t rio;

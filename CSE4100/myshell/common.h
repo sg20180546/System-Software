@@ -18,12 +18,13 @@
 #define a(x) assert(x)
 
 
-#define pf(x) printf("%s\n",(x))
+// #define pf(x) printf("%s\n",(x))
 #define ff(x) fprintf(stderr,"%s\n",(x) );
 
 pid_t parent_pid;
 pid_t child_pid;
 sigset_t mask;
+jmp_buf jbuf;
 char buf[MAXLINE];
 void safe_free(void * p);
 

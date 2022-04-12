@@ -12,7 +12,7 @@ int main(int argc,char**argv){
     if(argc!=2){
         exit(0);
     }
-
+    // select()
     listenfd=Open_listenfd(argv[1]);
 
     while(1){
