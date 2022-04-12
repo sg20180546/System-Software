@@ -17,6 +17,7 @@
         "functional": "c",
         "random": "c",
         "type_traits": "c",
-        "sstream": "c"
+        "sstream": "c",
+        "thread": "c"
     }
 }

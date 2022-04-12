@@ -49,11 +49,17 @@ void interpreter(char* cmdline){
     pid_t pid=fork();
     
     if(pid){
+        int st;
         if(mode==FOREGROUND){
         child_pid=pid;
         reap_dead_jobs();
-        sigsuspend(&mask);
+        // sigsuspend(&mask);
+         waitpid(pid,&st,WUNTRACED);
+        if(WIFSTOPPED(st)){
+            insert_jobs(child_pid,buf,SUSPENDED);
+            printf("[%d] Stopped %s",jobs_rear-1,buf);
         }
+    }
     else if(mode==BACKGROUND){
         printf("[%d] : %s",jobs_rear,buf);
         insert_jobs(pid,buf,RUNNING);
@@ -95,11 +101,13 @@ void interpreter(char* cmdline){
                 exit(0);
                 break;
             case SYNTAXERR:
+                fflush(stdin); fflush(stdout);
                 write(1,"Syntax Error\n",14);
                 exit(0);
                 break;
             case NOCOMMANDERR:
                 write(1,"No Command Error\n",18);
+                fflush(stdin); fflush(stdout);
                 exit(0);
                 break;
             default:
@@ -125,7 +133,6 @@ static status parser(char* cmdline,struct command** first_command,struct command
         status=find_shell_command(cmdline,&pos,&cbuf);
        
         if(status!=OK) return status;
-
         if(!(*first_command)) (*first_command)=cbuf;
         (*last_command)=cbuf;
   
@@ -189,9 +196,8 @@ static status find_shell_command(char* cmdline,int* pos,struct command** cbuf){
 
         while(low<=high){
             mid=(low+high)/2;
-
             int c=cmdline[*pos]-command_list[mid].builtin->name[0];
-  
+            
             if(c==0){
               if(!strncmp(&cmdline[*pos],command_list[mid].builtin->name,strlen(command_list[mid].builtin->name))){
                   *cbuf=calloc(1,sizeof(struct command));

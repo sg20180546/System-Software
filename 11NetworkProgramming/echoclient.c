@@ -22,3 +22,4 @@ int main(int argc,char**argv){
     close(clientfd);
     exit(0);
 }
+// 127.0. 0.1  8000

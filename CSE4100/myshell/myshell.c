@@ -19,7 +19,7 @@ static void initialize(){
     sigemptyset(&mask);
     parent_pid=getpid();
     signal(SIGCHLD,sigchild_handler);
-    signal(SIGINT,sigint_handler);
+    signal(SIGINT,SIG_IGN);
     signal(SIGTSTP,sigtstp_handler);
     signal(SIGTTIN,SIG_IGN);
     signal(SIGTTOU,SIG_IGN);

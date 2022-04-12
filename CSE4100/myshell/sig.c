@@ -8,7 +8,6 @@ void sigchild_handler_child(int sig){
             SEND_STOP(pid);
         }
     }
-    SEND_INT(parent_pid);
 }
 
 
@@ -18,7 +17,7 @@ void sigchild_handler(int sig){
    while( (pid=waitpid(-1,&st,WNOHANG|WUNTRACED))>0){
        if(WIFSTOPPED(st)){
         insert_jobs(child_pid,buf,SUSPENDED);
-        printf("[%d] Stopped %s\n",jobs_rear-1,buf);
+        printf("[%d] Stopped %s",jobs_rear-1,buf);
         SEND_CONTINUE(parent_pid);
        }else if(WIFEXITED(st)){
             if(pid==child_pid){
@@ -39,15 +38,7 @@ void sigchild_handler(int sig){
 
 
 void sigint_handler(int sig){
-    
-    if(child_pid) {
-        SEND_INT(child_pid);
-        waitpid(child_pid,NULL,0);
 
-
-        child_pid=0;
-    }
-    SEND_CONTINUE(parent_pid);
 }
 
 
@@ -56,7 +47,7 @@ void sigtstp_handler(int sig){
     tcsetpgrp(STDIN_FILENO,parent_pid);
     tcsetpgrp(STDOUT_FILENO,parent_pid);
     child_pid=0;
-    SEND_CONTINUE(parent_pid);
+    // SEND_CONTINUE(parent_pid);
 }
 
 

@@ -3,7 +3,7 @@
 #include "module/jobs.h"
 #include "module/exit.h"
 
-int num_command=30;
+int num_command=29;
 struct command command_list[]={
     {0,NULL,FUNCTION,NULL,NULL,&(builtin){"bg",bg}},
     {0,NULL,ABSOLUTE,NULL,NULL,&(builtin){"cat"}},

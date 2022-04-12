@@ -20,7 +20,7 @@ void print_jobs(char** argv){
         fprintf(stdout,"[%d] ",i);
         switch(jobs_list[i]->state){
             case RUNNING:
-                printf("RUNNING    ");
+                printf("RUNNING   ");
                 break;
             case SUSPENDED:
                 printf("SUSPENDED ");
@@ -119,7 +119,7 @@ void fg(char** argv){
     waitpid(child_pid,&st,WUNTRACED);
     if(WIFSTOPPED(st)){
         insert_jobs(child_pid,buf,SUSPENDED);
-        printf("[%d] Stopped %s\n",jobs_rear-1,buf);
+        printf("[%d] Stopped %s",jobs_rear-1,buf);
     }
 }
 

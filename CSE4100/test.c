@@ -1,4 +1,25 @@
-#include <stdio.h>
+#
+:
+D
+C
+C
+A
+A
+A
+B
+B
+B
+io
+A
+B
+B:wq
+
+B
+B
+iiisB
+B
+B
+nclude <stdio.h>
 
 int main(){
 
