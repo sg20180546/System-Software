@@ -9,8 +9,8 @@ debug :
 clean :
 	rm myshell debugshell
 tar :
-	tar -cvzf ${PWD}/../20180546.tar.gz ${PWD}/../myshell
-tar_del :
-	rm ${PWD}/../20180546.tar.gz
+	tar -cvzf ${PWD}/../../20180546.tar.gz ${PWD}/../../20180546
+rm_tar :
+	rm ${PWD}/../../20180546.tar.gz
 scp :
-	scp ${PWD}/../20180546.tar.gz cse20180546@cspro.sogang.ac.kr:/sogang/under/cse20180546
+	scp ${PWD}/../../20180546.tar.gz cse20180546@cspro.sogang.ac.kr:/sogang/under/cse20180546
