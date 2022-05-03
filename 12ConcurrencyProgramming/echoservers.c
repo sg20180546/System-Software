@@ -36,6 +36,8 @@ int main(int argc,char** argv){
         check_client(&pool);
     }
 }
+
+
 void init_pool(int listenfd,pool* p){
     int i;
     p->maxi=-1;

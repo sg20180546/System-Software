@@ -18,6 +18,18 @@
         "random": "c",
         "type_traits": "c",
         "sstream": "c",
-        "thread": "c"
+        "thread": "c",
+        "fstream": "c",
+        "initialize.h": "c",
+        "stockfile_handle.h": "c",
+        "stockserver.h": "c",
+        "streambuf": "c",
+        "impl.h": "c",
+        "binary_tree.h": "c",
+        "deque": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "vector": "c",
+        "ostream": "c"
     }
 }
