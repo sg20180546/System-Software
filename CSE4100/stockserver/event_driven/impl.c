@@ -1,19 +1,19 @@
 #include "impl.h"
 
-static void parser();
 
-STATUS show(int connfd){
-    char buf[MAXLINE]="";
-    print_to_buf(root,buf);
-    write(connfd,buf,strlen(buf));
-    return SUCCESS;
+
+
+
+STATUS show(char* buf){
+    return print_to_buf(_root,buf);
 }
 
-STATUS sell(int connfd,int id,int count){
-    // if count -?
-    modify(id,count);
+STATUS sell(int id,int count){
+    return modify(id,count);
 }
 
-void event_driven(){
-
+STATUS buy(int id, int count){
+    return modify(id,-count);
 }
+
+

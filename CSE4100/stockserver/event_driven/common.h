@@ -6,19 +6,21 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <netdb.h>
 #define MAX_FSYNC_TIME 60
+#define SPACE ' '
+#define ENTER '\n'
+#define TAB '\t'
 #define MAX_STOCK 16
 #define MAXLINE 1024
 #define STOCK_FILE_PATH "../stock.txt"
-
+#define RIO_BUFSIZE 8192
+#define COMMAND_N 4
 #define error_exit(msg) {\
                          fprintf(stderr,(msg));\
                          exit(0);\
                          }
-
-
-
+#define whitespace(x) (((x)==SPACE )|| ((x)==TAB) )
 
 
 struct stock{
@@ -35,6 +37,6 @@ typedef enum{
 
 FILE* fp;
 STATUS status;
-struct stock* root;
+struct stock* _root;
 
 #endif

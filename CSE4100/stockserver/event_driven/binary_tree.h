@@ -4,7 +4,7 @@
 
 struct stock* insert(struct stock* root,int id,int count,int price);
 
-void modify(int id,int count);
+STATUS modify(int id,int count);
 
-void print_to_buf(struct stock* root,char* buf);
+STATUS print_to_buf(struct stock* root,char* buf);
 #endif

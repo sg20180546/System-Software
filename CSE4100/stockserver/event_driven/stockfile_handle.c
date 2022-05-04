@@ -13,3 +13,7 @@ void read_stockfile(){
         root=insert(root,ID,COUNT,PRICE);
     }
 }
+
+void fsync_stockfile(){
+    
+}
