@@ -7,7 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <netdb.h>
-#define MAX_FSYNC_TIME 60
+#include <errno.h>
+#include <time.h>
+
+#define MAX_FSYNC_TIME 16
 #define SPACE ' '
 #define ENTER '\n'
 #define TAB '\t'
@@ -20,7 +23,7 @@
                          fprintf(stderr,(msg));\
                          exit(0);\
                          }
-#define whitespace(x) (((x)==SPACE )|| ((x)==TAB) )
+#define whitespace(x) ( ( (x) ==SPACE) || ( (x) == TAB)  )
 
 
 struct stock{
@@ -31,12 +34,14 @@ struct stock{
     struct stock* right;
 };
 
-typedef enum{
+typedef enum _STATUS{
     SUCCESS,ERROR
 }STATUS;
 
 FILE* fp;
 STATUS status;
 struct stock* _root;
+clock_t time1;
+clock_t time2;
 
 #endif

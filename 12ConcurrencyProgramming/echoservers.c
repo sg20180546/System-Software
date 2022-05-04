@@ -63,6 +63,7 @@ void add_client(int connfd,pool* p){
         }
     }
     if(i==FD_SETSIZE) app_error("add_client error:Too many clients");
+    printf("server connected\n");
 }
 
 void check_client(pool *p){
@@ -81,6 +82,7 @@ void check_client(pool *p){
                 Rio_writen(connfd,buf,n);
             }
             else{
+                printf("server terminated\n");
                 Close(connfd);
                 FD_CLR(connfd,&p->read_set);
                 p->clientfd[i]=-1;

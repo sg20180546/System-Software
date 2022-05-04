@@ -10,10 +10,24 @@ void read_stockfile(){
         ID=atoi(id);
         COUNT=atoi(count);
         PRICE=atoi(price);
-        root=insert(root,ID,COUNT,PRICE);
+        _root=insert(_root,ID,COUNT,PRICE);
     }
 }
 
 void fsync_stockfile(){
-    
+    t0=time(0);
+    char buf[MAXLINE];
+    print_to_buf(_root,buf);
+    fwrite(buf,sizeof(char),strlen(buf),fp);
+    fsync(fileno(fp));
+}
+
+int time_check(){
+    t1=time(0);
+    double diff=difftime(t1,t0);
+    if(diff>MAX_FSYNC_TIME){
+        t0=time(0);
+        return 1;
+    }
+    return -1;
 }

@@ -9,7 +9,8 @@
 
 struct command{
     int flag;
-    char name[3][10];
+    char name[COMMAND_N][10];
+    char args[3][16];
     union {
         STATUS (*fp0)();
         STATUS (*fp1)(char*);
@@ -23,13 +24,8 @@ STATUS sell(int id, int count);
 
 STATUS buy(int id, int count);
 
-STATUS exit_client();
+STATUS exit_client(int connfd,int idx);
 
-struct command command_list[COMMAND_N]={
-    {.flag=0x1,.name={"show","SHOW","Show"},.fp1=show},
-    {.flag=0x2,.name={"sell","SELL","Sell"},.fp2=sell},
-    {.flag=0x2,.name={"buy","BUY","Buy"},.fp2=buy},
-    {.flag=0x0,.name={"exit","EXIT","Exit"},.fp0=exit_client}
-}
+extern struct command command_list[];
 
 #endif

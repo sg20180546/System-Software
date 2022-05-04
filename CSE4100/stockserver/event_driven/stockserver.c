@@ -10,15 +10,10 @@ int main(int argc,char** argv){
     while(1){
         see_pool();
         write_pool();
-        if(if_all_connection_close()||time_check()>MAX_FSYNC_TIME){
+        if(_pool.n==0||time_check()>MAX_FSYNC_TIME){
             fsync_stockfile();
         }
     }
 }
 
 
-
-// void error_exit(char* msg){
-//     fprintf(stderr,msg);
-//     exit(0);
-// }

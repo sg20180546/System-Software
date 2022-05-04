@@ -68,6 +68,8 @@
         "new": "c",
         "queue": "c",
         "stdexcept": "c",
-        "cinttypes": "c"
+        "cinttypes": "c",
+        "errno.h": "c",
+        "time.h": "c"
     }
 }
