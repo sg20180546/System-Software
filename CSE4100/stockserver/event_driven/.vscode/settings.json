@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "network.h": "c",
-        "impl.h": "c"
+        "impl.h": "c",
+        "typeinfo": "c"
     }
 }

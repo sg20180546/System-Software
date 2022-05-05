@@ -4,27 +4,26 @@
 #include "binary_tree.h"
 #include "network.h"
 #define NOARGS 0x0
-#define CHARP 0x1
-#define INTINT 0x2
+#define INTINT 0x1
 
 struct command{
     int flag;
+    int connfd;
+    int poolidx;
     char name[COMMAND_N][10];
-    char args[3][16];
-    union {
-        STATUS (*fp0)();
-        STATUS (*fp1)(char*);
-        STATUS (*fp2)(int,int);
-    };
+    char result[MAXLINE];
+    char** args;
+    int argc;
+    STATUS (*fp)(struct command*);
 };
 
-STATUS show(char* buf);
+STATUS show(struct command* cmd);
 
-STATUS sell(int id, int count);
+STATUS sell(struct command* cmd);
 
-STATUS buy(int id, int count);
+STATUS buy(struct command* cmd);
 
-STATUS exit_client(int connfd,int idx);
+STATUS exit_client(struct command* cmd);
 
 extern struct command command_list[];
 

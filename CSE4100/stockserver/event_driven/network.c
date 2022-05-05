@@ -1,43 +1,31 @@
 #include "network.h"
 
 
-static void execute(int connfd,struct command cmd);
+static void execute(struct command cmd);
 static void add_client(int connfd);
 
 
 
-static void execute(int connfd,struct command cmd){
+static void execute(struct command cmd){
+
     if(cmd.name[0]==NULL) return;
-    char buf0[MAXLINE]="";
-    char buf1[MAXLINE]="[";
+
+    char res[MAXLINE]="[";
     STATUS st;
-    strcat(buf1,cmd.name[0]);
-
-    switch (cmd.flag)
-    {
-    case NOARGS:
-        st=cmd.fp0();
-        break;
-    case CHARP:
-        st=cmd.fp1(buf0);
-        break;
-    case INTINT:
-        st=cmd.fp2(atoi(cmd.args[1]),atoi(cmd.args[2]));
-        break;
-    default:
-        break;
-    }
+    strcat(res,cmd.name[0]);
+    strcpy(cmd.result,"");
+    st=cmd.fp(&cmd);
     
+
+
     if(st==SUCCESS){
-        strcat(buf1,"] success\n");
+        strcat(res,"]\033[0;32msuccess\n\033[0m");
     }else{
-        strcat(buf1,"] failed\n");
+        strcat(res,"] failed\n");
     }
-    strcat(buf1,buf0);
-    
+    strcat(res,cmd.result);
 
-
-    rio_writen(connfd,buf1,strlen(buf1));
+    rio_writen(cmd.connfd,res,strlen(res));
 }
 
 
@@ -80,22 +68,20 @@ int open_listenfd(char* port){
 }
 
 void see_pool(void){
-    printf("see pool start ! \n");
+
     _pool.ready_set=_pool.read_set;
     _pool.nready=select(_pool.maxfd+1,&_pool.ready_set,NULL,NULL,NULL);
-    // select bug
-    printf("is selecting?\n");
+
     if(FD_ISSET(listenfd,&_pool.ready_set)){
-        printf("in iseet\n");
         clientlen=sizeof(struct sockaddr_storage);
         connfd=accept(listenfd,(struct sockaddr*)&clientaddr,&clientlen);
         add_client(connfd);
     }
-    printf("see pool end ! \n");
+
 }
 
 void write_pool(void){
-    printf("write pool start\n");
+
     int i,connfd;
     ssize_t rc;
     rio_t rio;
@@ -103,36 +89,28 @@ void write_pool(void){
     for(i=0;(i<=_pool.maxi)&&(_pool.nready>0);i++){
         struct command cmd;
         char buf[MAXLINE];
-        connfd=_pool.clientfd[i];
+        cmd.connfd=_pool.clientfd[i];
+        cmd.poolidx=i;
         rio=_pool.clientrio[i];
         int p=0;
-        if((connfd>0)&&(FD_ISSET(connfd,&_pool.ready_set))){
+        if((cmd.connfd>0)&&(FD_ISSET(cmd.connfd,&_pool.ready_set))){
             _pool.nready--;
             if((rc=rio_readlineb(&rio,buf,MAXLINE))!=0){
-                printf("parsing... %ld buf: %s\n",rc,buf);
+    
                 st=parser(buf,rc,&cmd);
-                // printf("read size : %ld buf:  %s",rc,buf);
-                // if(rc==1) continue;
-                // if(find_cmd(buf,&cmd,&p)==ERROR){
-                //     rio_writen(connfd,"no such command\n",16);
-                //     continue;
-                // }
 
-                // if(find_args((buf+p),&cmd)==ERROR){
-                //    rio_writen(connfd,"invalid argument\n",20);
-                //     continue;
-                // }
                 if(st==NOCMD){
-                    rio_writen(connfd,"no such command\n",16);
+                    rio_writen(cmd.connfd,"no such command\n",16);
                     continue;
                 }else if(st==INVARG){
-                    rio_writen(connfd,"invalid argument\n",20);
+                    rio_writen(cmd.connfd,"invalid argument\n",20);
                     continue;
                 }else if(st==NL){
+                    rio_writen(cmd.connfd,"please type command\n",20);
                     continue;
                 }
-                // sprintf(cmd.args[0],"%d",i);
-                execute(connfd,cmd);
+
+                execute(cmd);
             }else{
                remove_client(connfd,i);
             }

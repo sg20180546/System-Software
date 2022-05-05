@@ -2,7 +2,7 @@
 
 
 STATUS find_cmd(char buf[],struct command* cmd,int* p){
-
+    cmd->args=calloc(1,sizeof(char*)*4);
     int i,j;
     size_t n;
     unsigned int pos=0;
@@ -19,28 +19,16 @@ STATUS find_cmd(char buf[],struct command* cmd,int* p){
         for(j=0;j<3;j++){
             if(!strncmp(command_list[i].name[j],buf,pos)){
                 (*cmd).flag=command_list[i].flag;
+                cmd->args[0]=calloc(1,10);
+                cmd->argc=1;
                 strcpy(cmd->name[0],command_list[i].name[0]);
-                switch ((*cmd).flag)
-                {
-                case 0x0:
-                    (*cmd).fp0=command_list[i].fp0;
-                    break;
-                case 0x1:
-                    (*cmd).fp1=command_list[i].fp1;
-                    break;
-                case 0x2:
-                    (*cmd).fp2=command_list[i].fp2;
-                    break;
-                default:
 
-                    break;
-                }
+                (*cmd).fp=command_list[i].fp;
             }
         }
     }
 
     if(cmd->name[0]==NULL){
-        printf("here?");
         return ERROR;
     } 
     *p=pos; 
@@ -49,12 +37,12 @@ STATUS find_cmd(char buf[],struct command* cmd,int* p){
 }
 
 STATUS find_args(char* buf,struct command* cmd){
-    printf("%s",buf);
     STATUS st=SUCCESS;
     unsigned int pos=0;
+    
     switch (cmd->flag)
     {
-    case (NOARGS||CHARP):
+    case NOARGS:
         while(whitespace(buf[pos])) pos++;
         if(buf[pos]!=ENTER) return ERROR;
         break;
@@ -62,16 +50,22 @@ STATUS find_args(char* buf,struct command* cmd){
         while(whitespace(buf[pos])) pos++;
         buf=&buf[pos]; pos=0;
         while(!whitespace(buf[pos])) pos++;
+        cmd->args[1]=calloc(1,sizeof(char)*(pos+1));
         strncpy(cmd->args[1],buf,pos);
-
-
         while(whitespace(buf[pos])) pos++;
         buf=&buf[pos]; pos=0;
-        while(!whitespace(buf[pos]) ) pos++;
+        while(!whitespace(buf[pos]) ){
+            if(buf[pos]==ENTER) break;
+            pos++;
+        }
+        printf("second arg pos : %d\n",pos);
+        cmd->args[2]=calloc(1,sizeof(char)*(pos+1));
         strncpy(cmd->args[2],buf,pos);
-        
+        printf("cpyargs: %s, buf : %s",cmd->args[2],buf);
         while(whitespace(buf[pos])) pos++;
+        cmd->argc=3;
         if(buf[pos]!=ENTER) return ERROR;
+
         break;
     default:
         break;
@@ -88,6 +82,7 @@ STATUS parser(char* buf,int rc,struct command* cmd){
     if(st==ERROR) return NOCMD;
     
     st=find_args((buf+p),cmd);
+
     if(st==ERROR) return INVARG;
 
     return SUCCESS;
