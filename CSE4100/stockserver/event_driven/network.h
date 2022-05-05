@@ -2,15 +2,10 @@
 #define NETWORK_H_
 #include "common.h"
 #include "impl.h"
+#include "util.h"
+#include "parser.h"
 #define LISTENQ 1024
 
-
-typedef struct _rio_t{
-    int rio_fd;
-    int rio_cnt;
-    char* rio_bufptr;
-    char rio_buf[RIO_BUFSIZE];
-} rio_t;
 
 
 typedef struct{
@@ -35,4 +30,5 @@ int open_listenfd(char* port);
 void see_pool(void);
 void write_pool(void);
 int remove_client(int connfd,int idx);
+
 #endif

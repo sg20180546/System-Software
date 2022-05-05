@@ -1,15 +1,45 @@
 #include "network.h"
 
-static STATUS find_cmd(char buf[],struct command* cmd,int* p);
-static STATUS find_args(char* buf,struct command* cmd);
+
 static void execute(int connfd,struct command cmd);
 static void add_client(int connfd);
 
 
-static void rio_readinitb(rio_t* rp,int fd);
-static ssize_t rio_writen(int fd,void* usrbuf,size_t n);
-static ssize_t rio_readlineb(rio_t *rp,void* usrbuf,size_t maxlen);
-static ssize_t rio_read(rio_t* rp,char*usrbuf,size_t n);
+
+static void execute(int connfd,struct command cmd){
+    if(cmd.name[0]==NULL) return;
+    char buf0[MAXLINE]="";
+    char buf1[MAXLINE]="[";
+    STATUS st;
+    strcat(buf1,cmd.name[0]);
+
+    switch (cmd.flag)
+    {
+    case NOARGS:
+        st=cmd.fp0();
+        break;
+    case CHARP:
+        st=cmd.fp1(buf0);
+        break;
+    case INTINT:
+        st=cmd.fp2(atoi(cmd.args[1]),atoi(cmd.args[2]));
+        break;
+    default:
+        break;
+    }
+    
+    if(st==SUCCESS){
+        strcat(buf1,"] success\n");
+    }else{
+        strcat(buf1,"] failed\n");
+    }
+    strcat(buf1,buf0);
+    
+
+
+    rio_writen(connfd,buf1,strlen(buf1));
+}
+
 
 
 void init_pool(int listenfd){
@@ -18,8 +48,8 @@ void init_pool(int listenfd){
     _pool.maxi=-1;
     for(i=0;i<FD_SETSIZE;i++) _pool.clientfd[i]=-1;
     _pool.maxfd=listenfd;
-    FD_ZERO(&_pool.read_set);
-    FD_SET(listenfd,&_pool.read_set);
+    FD_ZERO(&(_pool.read_set));
+    FD_SET(listenfd,&(_pool.read_set));
 }
 
 int open_listenfd(char* port){
@@ -50,49 +80,67 @@ int open_listenfd(char* port){
 }
 
 void see_pool(void){
+    printf("see pool start ! \n");
     _pool.ready_set=_pool.read_set;
     _pool.nready=select(_pool.maxfd+1,&_pool.ready_set,NULL,NULL,NULL);
+    // select bug
+    printf("is selecting?\n");
     if(FD_ISSET(listenfd,&_pool.ready_set)){
+        printf("in iseet\n");
         clientlen=sizeof(struct sockaddr_storage);
         connfd=accept(listenfd,(struct sockaddr*)&clientaddr,&clientlen);
         add_client(connfd);
     }
+    printf("see pool end ! \n");
 }
 
 void write_pool(void){
+    printf("write pool start\n");
     int i,connfd;
-    char buf[MAXLINE];
+    ssize_t rc;
     rio_t rio;
-
+    STATUS st;
     for(i=0;(i<=_pool.maxi)&&(_pool.nready>0);i++){
+        struct command cmd;
+        char buf[MAXLINE];
         connfd=_pool.clientfd[i];
         rio=_pool.clientrio[i];
-
+        int p=0;
         if((connfd>0)&&(FD_ISSET(connfd,&_pool.ready_set))){
             _pool.nready--;
-            char args[3][16];
-            struct command cmd;
-            int flag,p=0;
-            if((connfd>0)&&(FD_ISSET(connfd,&_pool.ready_set))){
-                if(rio_readlineb(&rio,buf,MAXLINE)!=0){
-                    if(find_cmd(buf,&cmd,&p)==ERROR){
-                        rio_writen(connfd,"no such command\n",20);
-                        continue;
-                    }
+            if((rc=rio_readlineb(&rio,buf,MAXLINE))!=0){
+                printf("parsing... %ld buf: %s\n",rc,buf);
+                st=parser(buf,rc,&cmd);
+                // printf("read size : %ld buf:  %s",rc,buf);
+                // if(rc==1) continue;
+                // if(find_cmd(buf,&cmd,&p)==ERROR){
+                //     rio_writen(connfd,"no such command\n",16);
+                //     continue;
+                // }
 
-                    if(find_args((buf+p),&cmd)==ERROR){
-                        rio_writen(connfd,"invalid argument\n",20);
-                        continue;
-                    }
+                // if(find_args((buf+p),&cmd)==ERROR){
+                //    rio_writen(connfd,"invalid argument\n",20);
+                //     continue;
+                // }
+                if(st==NOCMD){
+                    rio_writen(connfd,"no such command\n",16);
+                    continue;
+                }else if(st==INVARG){
+                    rio_writen(connfd,"invalid argument\n",20);
+                    continue;
+                }else if(st==NL){
+                    continue;
                 }
-            sprintf(cmd.args[0],"%d",i);
-            execute(connfd,cmd);
+                // sprintf(cmd.args[0],"%d",i);
+                execute(connfd,cmd);
             }else{
-                remove_client(connfd,i);
+               remove_client(connfd,i);
             }
         }
+        
 
     }
+
 }
 
 
@@ -114,6 +162,7 @@ static void add_client(int connfd){
     _pool.n++;
 }
 int remove_client(int connfd,int idx){
+    // printf("%d %d\n",_pool.clientfd[idx],_pool.n);
     if(close(connfd)<0) return -1;
     FD_CLR(connfd,&_pool.read_set);
     _pool.clientfd[idx]=-1;
@@ -122,149 +171,7 @@ int remove_client(int connfd,int idx){
 }
 
 
-static void rio_readinitb(rio_t* rp,int fd){
-    rp->rio_fd=fd;
-    rp->rio_cnt=0;
-    rp->rio_bufptr=rp->rio_buf;
-}
-
-static ssize_t rio_readlineb(rio_t* rp,void* usrbuf,size_t maxlen){
-    int n,rc;
-    char c,*bufp=usrbuf;
-    for(n=1;n<maxlen;n++){
-        if((rc=rio_read(rp,&c,1))==1 ){
-            *bufp=c;
-            bufp++;
-            if(c=='\n'){
-                n++;
-                break;
-            }
-        }else if(rc==0){
-            if(n==1) return 0;
-            else break;
-        }else return -1;
-    }
-    *bufp=0;
-    return n-1;
-}
-
-static ssize_t rio_read(rio_t* rp,char*usrbuf,size_t n){
-    int cnt;
-    while(rp->rio_cnt<=0){
-        rp->rio_cnt=read(rp->rio_fd,rp->rio_buf,sizeof(rp->rio_buf));
-        if(rp->rio_cnt<0){
-            if(errno!=EINTR) return -1;
-        }else if(rp->rio_cnt==0) return 0;
-        else rp->rio_bufptr=rp->rio_buf;
-    }
-    cnt=n;
-    if(rp->rio_cnt<n) cnt=rp->rio_cnt;
-    memcpy(usrbuf,rp->rio_bufptr,cnt);
-    rp->rio_bufptr+=cnt;
-    rp->rio_cnt-=cnt;
-    return cnt;
-}
 
 
 
 
-static STATUS find_cmd(char buf[],struct command* cmd,int* p){
-    int i,j;
-    size_t n;
-    unsigned int pos=0;
-    while(! whitespace( buf[pos] ) ) pos++;
-    for(i=0;i<COMMAND_N ;i++){
-        for(j=0;j<3;j++){
-            if(!strncmp(command_list[i].name[j],(*buf),pos)){
-                cmd->flag=command_list[i].flag;
-                strcpy(cmd->name[0],command_list[i].name);
-                switch (cmd->flag)
-                {
-                case 0x0:
-                    cmd->fp0=command_list[i].fp0;
-                    break;
-                case 0x1:
-                    cmd->fp1=command_list[i].fp1;
-                    break;
-                case 0x2:
-                    cmd->fp2=command_list[i].fp2;
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
-    
-    if(cmd->fp0==NULL) return ERROR;
-    else {*p=pos; return SUCCESS;}
-}
-
-static STATUS find_args(char* buf,struct command* cmd){
-    unsigned int pos=0;
-    switch (cmd->flag)
-    {
-    case (NOARGS||CHARP):
-        while(whitespace(*buf)) pos++;
-        if(buf[pos]!=ENTER) return ERROR;
-        break;
-    case INTINT:
-        while(whitespace(*buf)) (*buf)++;
-        p=(*buf);
-        while(!whitespace(*buf)) (*buf)++;
-        strncpy(cmd->args[1],p,(*buf)-p);
-
-        while(whitespace(*buf)) (*buf)++;
-        p=(*buf);
-        while(!whitespace(*buf)) (*buf)++;
-        strncpy(cmd->args[2],p,(*buf)-p);
-        
-        if(*buf!=ENTER) return ERROR;
-        break;
-    default:
-        break;
-    }
-    return SUCCESS;
-}
-
-static void execute(int connfd,struct command cmd){
-    char buf1[MAXLINE]="",buf2[MAXLINE]="[";
-    STATUS st;
-    strcat(buf2,cmd.name);
-    switch (cmd.flag)
-    {
-    case NOARGS:
-        st=cmd.fp0();
-        break;
-    case CHARP:
-        st=cmd.fp1(buf1);
-        break;
-    case INTINT:
-        st=cmd.fp2(atoi(cmd.args[1]),atoi(cmd.args[2]));
-        break;
-    default:
-        break;
-    }
-    if(st==SUCCESS){
-        strcat(buf2,"] success\n");
-    }else{
-        strcat(buf2,"] failed\n");
-    }
-    strcat(buf2,buf1);
-
-    rio_writen(connfd,buf2,strlen(buf2));
-}
-
-static ssize_t rio_writen(int fd,void* usrbuf,size_t n){
-    size_t nleft=n;
-    ssize_t nwritten;
-    char* bufp=usrbuf;
-    while(nleft>0){
-        if((nwritten=write(fd,bufp,nleft))<0 ){
-            if(errno==EINTR) nwritten=0;
-            else return -1;
-        }
-        nleft-=nwritten;
-        bufp+=nwritten;
-    }
-    return n;
-}

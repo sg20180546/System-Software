@@ -33,6 +33,7 @@ int main(int argc,char** argv){
             connfd=Accept(listenfd,(SA*)&clientaddr,&clientlen);
             add_client(connfd,&pool);
         }
+        
         check_client(&pool);
     }
 }
@@ -80,8 +81,7 @@ void check_client(pool *p){
                 byte_cnt+=n;
                 printf("Server received %d (%d total) bytes on Fd %d\n",n,byte_cnt,connfd);
                 Rio_writen(connfd,buf,n);
-            }
-            else{
+            }else{
                 printf("server terminated\n");
                 Close(connfd);
                 FD_CLR(connfd,&p->read_set);

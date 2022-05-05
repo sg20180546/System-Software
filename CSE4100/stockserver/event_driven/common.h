@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <errno.h>
 #include <time.h>
+#include "signal.h"
 
 #define MAX_FSYNC_TIME 16
 #define SPACE ' '
@@ -16,7 +17,7 @@
 #define TAB '\t'
 #define MAX_STOCK 16
 #define MAXLINE 1024
-#define STOCK_FILE_PATH "../stock.txt"
+#define STOCK_FILE_PATH "./stock.txt"
 #define RIO_BUFSIZE 8192
 #define COMMAND_N 4
 #define error_exit(msg) {\
@@ -35,7 +36,7 @@ struct stock{
 };
 
 typedef enum _STATUS{
-    SUCCESS,ERROR
+    SUCCESS,ERROR,NOCMD,INVARG,NL
 }STATUS;
 
 FILE* fp;
