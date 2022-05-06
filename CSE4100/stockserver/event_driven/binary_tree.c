@@ -1,6 +1,5 @@
 #include "binary_tree.h"
 
-static struct stock* find(int id,struct stock* root);
 
 struct stock* insert(struct stock* root,int id,int count, int price){
     if(root==NULL){
@@ -18,8 +17,6 @@ struct stock* insert(struct stock* root,int id,int count, int price){
     }
 
     return root;
-
-
 }
 
 STATUS print_to_buf(struct stock* root,char* buf){
@@ -37,17 +34,15 @@ STATUS print_to_buf(struct stock* root,char* buf){
 STATUS modify(int id,int count){
     struct stock* stock=find(id,_root);
     if(stock==NULL){
-        printf("cantfounderror\n");
         return ERROR;
     } 
     if((stock->count+count)<0){
-        printf("amounterror %d+%d=%d\n",stock->count,count,stock->count+count);
         return ERROR;
     } 
     stock->count+=count;
     return SUCCESS;
 }
-static struct stock* find(int id,struct stock* root){
+struct stock* find(int id,struct stock* root){
     struct stock* node;
     if(root==NULL) node=root;
     else if(id==root->id) node=root;
