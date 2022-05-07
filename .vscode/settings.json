@@ -70,6 +70,7 @@
         "stdexcept": "c",
         "cinttypes": "c",
         "errno.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "fcntl.h": "c"
     }
 }

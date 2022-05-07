@@ -58,10 +58,10 @@ STATUS find_args(char* buf,struct command* cmd){
             if(buf[pos]==ENTER) break;
             pos++;
         }
-        printf("second arg pos : %d\n",pos);
+        // printf("second arg pos : %d\n",pos);
         cmd->args[2]=calloc(1,sizeof(char)*(pos+1));
         strncpy(cmd->args[2],buf,pos);
-        printf("cpyargs: %s, buf : %s",cmd->args[2],buf);
+        // printf("cpyargs: %s, buf : %s",cmd->args[2],buf);
         while(whitespace(buf[pos])) pos++;
         cmd->argc=3;
         if(buf[pos]!=ENTER) return ERROR;

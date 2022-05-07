@@ -26,7 +26,7 @@ STATUS sell(struct command* cmd){
 }
 
 STATUS buy(struct command* cmd){
-    printf("arg1 %s arg2 %s\n",cmd->args[1],cmd->args[2]);
+    // printf("arg1 %s arg2 %s\n",cmd->args[1],cmd->args[2]);
     int args1=atoi(cmd->args[1]);
     int args2=atoi(cmd->args[2]);
     free_args(cmd);
@@ -34,10 +34,8 @@ STATUS buy(struct command* cmd){
 }
 
 STATUS exit_client(struct command* cmd){
-    printf("exiting.. %d\n",connfd);
     free_args(cmd);
     if(remove_client(cmd->connfd,cmd->poolidx)){
-        printf("success exit\n");
         return SUCCESS;
     }
     return ERROR;

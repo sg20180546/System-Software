@@ -20,6 +20,7 @@
 #define STOCK_FILE_PATH "./stock.txt"
 #define RIO_BUFSIZE 8192
 #define COMMAND_N 4
+#define LISTENQ 1024
 #define error_exit(msg) {\
                          fprintf(stderr,(msg));\
                          exit(0);\

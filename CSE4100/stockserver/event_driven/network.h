@@ -4,7 +4,6 @@
 #include "impl.h"
 #include "util.h"
 #include "parser.h"
-#define LISTENQ 1024
 
 
 
@@ -20,13 +19,12 @@ typedef struct{
 }pool;
 
 
-int listenfd,connfd;
+int listenfd;
 socklen_t clientlen;
 struct sockaddr_storage clientaddr;
 pool _pool;
 
 void init_pool(int listenfd);
-int open_listenfd(char* port);
 void see_pool(void);
 void write_pool(void);
 int remove_client(int connfd,int idx);
