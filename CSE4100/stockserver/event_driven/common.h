@@ -9,7 +9,10 @@
 #include <netdb.h>
 #include <errno.h>
 #include <time.h>
-#include "signal.h"
+#include <sys/ioctl.h>
+#include <signal.h>
+#include <netinet/tcp.h>
+#include <wait.h>
 
 #define MAX_FSYNC_TIME 16
 #define SPACE ' '
@@ -27,7 +30,7 @@
                          }
 #define whitespace(x) ( ( (x) ==SPACE) || ( (x) == TAB)  )
 
-
+typedef struct sockaddr SA;
 struct stock{
     int id;
     int price;
@@ -37,7 +40,7 @@ struct stock{
 };
 
 typedef enum _STATUS{
-    SUCCESS,ERROR,NOCMD,INVARG,NL
+    SUCCESS,ERROR,NOCMD,INVARG,NOTENOUGHERR,NL
 }STATUS;
 
 FILE* fp;

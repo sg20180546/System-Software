@@ -16,19 +16,17 @@ STATUS find_cmd(char buf[],struct command* cmd,int* p){
     }
 
     for(i=0;i<COMMAND_N ;i++){
-        for(j=0;j<3;j++){
-            if(!strncmp(command_list[i].name[j],buf,pos)){
-                (*cmd).flag=command_list[i].flag;
-                cmd->args[0]=calloc(1,10);
-                cmd->argc=1;
-                strcpy(cmd->name[0],command_list[i].name[0]);
 
-                (*cmd).fp=command_list[i].fp;
-            }
+        if(!strncmp(command_list[i].name,buf,pos)){
+            (*cmd).flag=command_list[i].flag;
+            cmd->args[0]=calloc(1,10);
+            cmd->argc=1;
+            strcpy(cmd->name,command_list[i].name);
+            (*cmd).fp=command_list[i].fp;    
         }
     }
 
-    if(cmd->name[0]==NULL){
+    if(cmd->name==NULL){
         return ERROR;
     } 
     *p=pos; 

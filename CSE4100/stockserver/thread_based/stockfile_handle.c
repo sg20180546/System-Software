@@ -1,6 +1,5 @@
 #include "stockfile_handle.h"
 
-// Transfrom on-disk file to in-memory binary tree
 void read_stockfile(){
     char id[MAXLINE],price[MAXLINE],count[MAXLINE];
     int ID,COUNT,PRICE;

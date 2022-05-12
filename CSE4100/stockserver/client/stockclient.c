@@ -22,7 +22,10 @@ int main(int argc, char **argv)
 
     while (Fgets(buf, MAXLINE, stdin) != NULL) {
 	Rio_writen(clientfd, buf, strlen(buf));
-	Rio_readlineb(&rio, buf, MAXLINE);
+    // printf("writed\n");
+    // rio_readlineb(&rio,buf,MAXLINE);
+	rio_readnb(&rio, buf, MAXLINE);
+    // printf("size : %ld\n",strlen(buf));
 	Fputs(buf, stdout);
     }
     Close(clientfd); //line:netp:echoclient:close

@@ -10,7 +10,7 @@ struct command{
     int flag;
     int connfd;
     int poolidx;
-    char name[COMMAND_N][10];
+    char name[10];
     char result[MAXLINE];
     char** args;
     int argc;

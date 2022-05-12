@@ -8,10 +8,10 @@ static void free_args(struct command* cmd){
 }
 
 struct command command_list[]={
-    {.flag=0x0,.name={"show","SHOW","Show"},.fp=show},
-    {.flag=0x1,.name={"sell","SELL","Sell"},.fp=sell},
-    {.flag=0x1,.name={"buy","BUY","Buy"},.fp=buy},
-    {.flag=0x0,.name={"exit","EXIT","Exit"},.fp=exit_client}
+    {.flag=0x0,.name="show",.fp=show},
+    {.flag=0x1,.name="sell",.fp=sell},
+    {.flag=0x1,.name="buy",.fp=buy},
+    {.flag=0x0,.name="exit",.fp=exit_client}
 };
 STATUS show(struct command* cmd){
     free_args(cmd);

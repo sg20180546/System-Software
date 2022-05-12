@@ -1,4 +1,4 @@
-#include "../csapp.h"
+#include "./csapp.h"
 
 
 typedef struct{
@@ -91,4 +91,3 @@ void check_client(pool *p){
         }
     }
 }
-// 1019

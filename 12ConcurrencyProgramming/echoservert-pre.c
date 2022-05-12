@@ -28,7 +28,7 @@ int main(int argc,char** argv){
     while(1){
         clientlen=sizeof(struct sockaddr_storage);
         connfd=Accept(listen,(SA*)&clientaddr,&clientlen);
-        sbuf_insert(&sbuf,connfd);
+        sbuf_innsert(&sbuf,connfd);
     }
 }
 

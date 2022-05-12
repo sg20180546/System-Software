@@ -7,7 +7,7 @@ typedef struct{
     int n;
     int front,rear;
     sem_t mutex;
-    sem_t emtpy_slots;
+    sem_t empty_slots;
     sem_t items;
 } sbuf_t;
 
@@ -15,18 +15,22 @@ typedef struct{
 
 } queue;
 
-void sbuf_init(sbuf_t*sp,int n);
+void mutex_init(sbuf_t*sp,int n);
 void sbuf_deinit(sbuf_t*sp);
 void sbuf_insert(sbuf_t* sp,int item);
 int sbuf_remove(sbuf_t* sp);
+void* get_fd(void* vargp);
 
 sem_t writer_n_mutex;
-int writer_n;
+sem_t writer_prior_lock; // binary
+
 sem_t reader_n_mutex;
 int reader_n;
-queue readers_q;
-queue writers_q;
+int writer_n;
 
+sbuf_t sbuf;
+
+int cur_connection=0;
 
 // sem_t writer_mutex; go to in the struct stock
 // sem_t reader_n;

@@ -22,7 +22,7 @@ struct stock* insert(struct stock* root,int id,int count, int price){
 STATUS print_to_buf(struct stock* root,char* buf){
     if(root==NULL) return ERROR;
     char cat_buf[MAXLINE];
-    sprintf(cat_buf,"%d %d %d\r\n",root->id,root->count,root->price);
+    sprintf(cat_buf,"%d %d %d\n",root->id,root->count,root->price);
     
     
     strcat(buf,cat_buf);
@@ -37,7 +37,7 @@ STATUS modify(int id,int count){
         return ERROR;
     } 
     if((stock->count+count)<0){
-        return ERROR;
+        return NOTENOUGHERR;
     } 
     stock->count+=count;
     return SUCCESS;

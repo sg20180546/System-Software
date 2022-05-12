@@ -17,7 +17,7 @@
  */
 /* $begin csapp.c */
 #include "csapp.h"
-
+#include <assert.h>
 /************************** 
  * Error-handling functions
  **************************/
@@ -115,11 +115,7 @@ void Pause()
 
 unsigned int Sleep(unsigned int secs) 
 {
-    unsigned int rc;
-
-    if ((rc = sleep(secs)) < 0)
-	unix_error("Sleep error");
-    return rc;
+    return sleep(secs);
 }
 
 unsigned int Alarm(unsigned int seconds) {
@@ -733,24 +729,32 @@ void V(sem_t *sem)
  */
 /* $begin rio_readn */
 ssize_t rio_readn(int fd, void *usrbuf, size_t n) 
-{
+{   
+    // printf("in the readn start\n");
     size_t nleft = n;
     ssize_t nread;
     char *bufp = usrbuf;
 
     while (nleft > 0) {
+        // printf("in the while llop\n");
 	if ((nread = read(fd, bufp, nleft)) < 0) {
+        // printf("nread %ld",nread);
 	    if (errno == EINTR) /* Interrupted by sig handler return */
 		nread = 0;      /* and call read() again */
 	    else
 		return -1;      /* errno set by read() */ 
 	} 
-	else if (nread == 0)
+	else if (nread == 0){
+        // printf("EOF\n");
 	    break;              /* EOF */
+    }
+    
 	nleft -= nread;
 	bufp += nread;
+    // printf("nleft : %ld bufp :%s char : %d\n",nleft,bufp,*bufp);
     }
-    return (n - nleft);         /* return >= 0 */
+    
+    return (n - nleft);         /* Return >= 0 */
 }
 /* $end rio_readn */
 
@@ -791,13 +795,17 @@ ssize_t rio_writen(int fd, void *usrbuf, size_t n)
 static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n)
 {
     int cnt;
-
+    // printf("rio read start\n");
     while (rp->rio_cnt <= 0) {  /* Refill if buf is empty */
-	printf("bug point\n");
-    rp->rio_cnt = read(rp->rio_fd, rp->rio_buf, 
+    // printf("rio_end loop start\n");
+    // assert(rp);
+    // assert(rp->rio_cnt);
+    // printf("before read: int the rio_read : rp->rio_cnt=%d\n",rp->rio_cnt);
+		printf("bug point\n");
+    rp->rio_cnt = read(rp->rio_fd, rp->rio_buf,  //bug
 			   sizeof(rp->rio_buf));
-    printf("%s",usrbuf);
-    printf("bug\n");
+    	printf("bug\n");
+    // printf("int the rio_read : rp->rio_cnt=%d\n",rp->rio_cnt);
 	if (rp->rio_cnt < 0) {
 	    if (errno != EINTR) /* Interrupted by sig handler return */
 		return -1;
@@ -840,15 +848,29 @@ ssize_t rio_readnb(rio_t *rp, void *usrbuf, size_t n)
     size_t nleft = n;
     ssize_t nread;
     char *bufp = usrbuf;
-    
+    // printf("readnb staryt nleft : %ld\n",nleft);
     while (nleft > 0) {
-	if ((nread = rio_read(rp, bufp, nleft)) < 0) 
-            return -1;          /* errno set by read() */ 
-	else if (nread == 0)
-	    break;              /* EOF */
+    // write(1,"loop\n",5);
+	nread = rio_read(rp, bufp, nleft);
+        // printf(" -1-1\n");
+    char buf[10];
+    // sprintf(buf,"nread : %ld\n",nread);
+    write(1,buf,strlen(buf));
+    if(nread<0) return -1;
+    
+                      /* errno set by read() */ 
+    
+	else if (nread == 0){
+        // printf("nread zero]\n");
+        break;
+    }
+	printf("\nnread : %ld bufp : %s",nread,bufp);
+                      /* EOF */
+        // printf("nread %ld  nleft %ld",nread,nleft);
 	nleft -= nread;
 	bufp += nread;
     }
+    // printf("readnb end\n");
     return (n - nleft);         /* return >= 0 */
 }
 /* $end rio_readnb */
@@ -865,6 +887,7 @@ ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen)
     for (n = 1; n < maxlen; n++) { 
         if ((rc = rio_read(rp, &c, 1)) == 1) {
 	    *bufp++ = c;
+        printf("%d ",c);
 	    if (c == '\n') {
                 n++;
      		break;
@@ -1037,6 +1060,7 @@ int Open_listenfd(char *port)
 }
 
 /* $end csapp.c */
+
 
 
 

@@ -2,7 +2,7 @@
 #include <time.h>
 
 #define MAX_CLIENT 100
-#define ORDER_PER_CLIENT 10
+#define ORDER_PER_CLIENT 3
 #define STOCK_NUM 10
 #define BUY_SELL_MAX 10
 
@@ -72,7 +72,8 @@ int main(int argc, char **argv)
 				//strcpy(buf, "buy 1 2\n");
 			
 				Rio_writen(clientfd, buf, strlen(buf));
-				Rio_readlineb(&rio, buf, MAXLINE);
+				// Rio_readlineb(&rio, buf, MAXLINE);
+				Rio_readnb(&rio, buf, MAXLINE);
 				Fputs(buf, stdout);
 
 				usleep(1000000);

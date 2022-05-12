@@ -1,19 +1,36 @@
 #include "util.h"
+static ssize_t rio_writen(int fd, void *usrbuf, size_t n);
+static void unix_error(char *msg);
 
-ssize_t rio_writen(int connfd,char* usrbuf,size_t n){
-    size_t nleft=n;
+static void unix_error(char *msg) /* Unix-style error */
+{
+    fprintf(stderr, "%s: %s\n", msg, strerror(errno));
+    exit(0);
+}
+
+static ssize_t rio_writen(int fd, void *usrbuf, size_t n) 
+{
+    size_t nleft = n;
     ssize_t nwritten;
-    char* bufp=usrbuf;
-    while(nleft>0){
-        if((nwritten=write(connfd,bufp,nleft))<=0 ){
-            if(errno==EINTR) nwritten=0;
-            else return -1;
+    char *bufp = usrbuf;
 
-        }
-        nleft-=nwritten;
-        bufp+=nwritten;
+    while (nleft > 0) {
+	if ((nwritten = write(fd, bufp, nleft)) <= 0) {
+	    if (errno == EINTR)  /* Interrupted by sig handler return */
+		nwritten = 0;    /* and call write() again */
+	    else
+		return -1;       /* errno set by write() */
+	}
+	nleft -= nwritten;
+	bufp += nwritten;
     }
-    return (ssize_t)n;
+    return n;
+}
+
+void Rio_writen(int fd, void *usrbuf, size_t n)
+{
+    if (rio_writen(fd, usrbuf, n) != n)
+	unix_error("Rio_writen error");
 }
 
 
@@ -78,11 +95,48 @@ int open_listenfd(char* port){
         close(listenfd);
     }
     freeaddrinfo(listp);
-    if(p==NULL) return -1;
+    if(!p) return -1;
 
     if(listen(listenfd,LISTENQ)<0) {
         close(listenfd);
         return -1;
     }
     return listenfd;
+}
+
+// int open_listenfd(char* port) 
+// {
+//   int listenfd, optval=1;
+//   struct sockaddr_in serveraddr;
+  
+//   /* Create a socket descriptor */
+//   if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+//     return -1;
+ 
+//   /* Eliminates "Address already in use" error from bind. */
+//   if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, 
+//                  (const void *)&optval , sizeof(int)) < 0)
+//     return -1;
+
+//   /* Listenfd will be an endpoint for all requests to port
+//      on any IP address for this host */
+//   bzero((char *) &serveraddr, sizeof(serveraddr));
+//   serveraddr.sin_family = AF_INET; 
+//   serveraddr.sin_addr.s_addr = htonl(INADDR_ANY); 
+//   serveraddr.sin_port = port; 
+
+//   if (bind(listenfd, (SA *) &serveraddr, sizeof(serveraddr)) < 0)
+//     return -1;
+
+//   /* Make it a listening socket ready to accept connection requests */
+//   if (listen(listenfd, LISTENQ) < 0)
+//     return -1;
+
+//   return listenfd;
+// }
+int socket_close(int connfd){
+    int st;
+    if((st=close(connfd))<0) printf("Connection Closed failed\n");
+    else printf("Connection Closed\n");
+    return st;
 }

@@ -1,5 +1,13 @@
 {
     "files.associations": {
-        "stockserver.h": "c"
+        "stockserver.h": "c",
+        "signal.h": "c",
+        "ioctls.h": "c",
+        "ioctl-types.h": "c",
+        "typeinfo": "c",
+        "util.h": "c",
+        "csapp.h": "c",
+        "common.h": "c",
+        "semaphore.h": "c"
     }
 }
