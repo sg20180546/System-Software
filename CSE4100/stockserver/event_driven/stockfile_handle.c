@@ -22,7 +22,7 @@ void fsync_stockfile(){
     print_to_buf(_root,buf);
     
     int fd=open(STOCK_FILE_PATH,O_WRONLY);
-    write(fd,buf,strlen(buf)-1);
+    write(fd,buf,strlen(buf));
     fsync(fd);
     close(fd);
 }

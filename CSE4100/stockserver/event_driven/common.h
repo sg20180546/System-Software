@@ -19,7 +19,7 @@
 #define ENTER '\n'
 #define TAB '\t'
 #define MAX_STOCK 16
-#define MAXLINE 1024
+#define MAXLINE 8192
 #define STOCK_FILE_PATH "./stock.txt"
 #define RIO_BUFSIZE 8192
 #define COMMAND_N 4
@@ -29,6 +29,9 @@
                          exit(0);\
                          }
 #define whitespace(x) ( ( (x) ==SPACE) || ( (x) == TAB)  )
+
+#define free(x) {\
+                    if(x) free(x); }
 
 typedef struct sockaddr SA;
 struct stock{

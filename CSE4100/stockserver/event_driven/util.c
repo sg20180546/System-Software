@@ -80,6 +80,9 @@ ssize_t rio_read(rio_t* rp,char*usrbuf,size_t n){
 int open_listenfd(char* port){
     struct addrinfo hints,*listp,*p;
     int listenfd,optval=1;
+    struct timeval t;
+    t.tv_sec=t.tv_usec=0;
+    struct linger l;
 
     memset(&hints,0,sizeof(struct addrinfo));
     hints.ai_socktype=SOCK_STREAM;
@@ -91,6 +94,8 @@ int open_listenfd(char* port){
         if((listenfd=socket(p->ai_family,p->ai_socktype,p->ai_protocol))<0) continue;
 
         setsockopt(listenfd,SOL_SOCKET,SO_REUSEADDR,(const void*)&optval,sizeof(int));
+        // setsockopt(listenfd,SOL_SOCKET,SO_SNDTIMEO,(const void*)&t,sizeof(t));
+        setsockopt(listenfd,SOL_SOCKET,SO_RCVTIMEO,(const void*)&t,sizeof(t));
         if(bind(listenfd,p->ai_addr,p->ai_addrlen)==0) break;
         close(listenfd);
     }

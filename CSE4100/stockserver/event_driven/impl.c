@@ -5,6 +5,7 @@ static void free_args(struct command* cmd){
     for(i=0;i<cmd->argc;i++){
         free(cmd->args[i]);
     }
+    free(cmd->args);
 }
 
 struct command command_list[]={

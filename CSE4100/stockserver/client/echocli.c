@@ -13,11 +13,15 @@ int main(int argc,char**argv){
     port=argv[2];
 
     clientfd=Open_clientfd(host,port);
+    // int flag=fcntl(clientfd,F_GETFL,0);
+    // fcntl(clientfd,F_SETFL,flag|O_NONBLOCK);
     Rio_readinitb(&rio,clientfd);
     while(Fgets(buf,MAXLINE,stdin)!=NULL){
         Rio_writen(clientfd,buf,strlen(buf));
         Rio_readnb(&rio,buf,MAXLINE);
+        
         Fputs(buf,stdout);
+        printf("end of loop\n");
     }
     close(clientfd);
     exit(0);

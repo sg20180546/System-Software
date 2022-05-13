@@ -793,11 +793,11 @@ static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n)
     int cnt;
 
     while (rp->rio_cnt <= 0) {  /* Refill if buf is empty */
-	printf("bug point\n");
+	// printf("bug point\n");
     rp->rio_cnt = read(rp->rio_fd, rp->rio_buf, 
 			   sizeof(rp->rio_buf));
-    printf("%s",usrbuf);
-    printf("bug\n");
+    // printf("%s",usrbuf);
+    // printf("bug\n");
 	if (rp->rio_cnt < 0) {
 	    if (errno != EINTR) /* Interrupted by sig handler return */
 		return -1;
@@ -842,14 +842,20 @@ ssize_t rio_readnb(rio_t *rp, void *usrbuf, size_t n)
     char *bufp = usrbuf;
     
     while (nleft > 0) {
-	if ((nread = rio_read(rp, bufp, nleft)) < 0) 
-            return -1;          /* errno set by read() */ 
+	if ((nread = rio_read(rp, bufp, nleft)) < 0){
+        // printf("nread :%ld\n",nread);
+        return -1;
+    } 
+
+                      /* errno set by read() */ 
 	else if (nread == 0)
 	    break;              /* EOF */
 	nleft -= nread;
 	bufp += nread;
     }
-    return (n - nleft);         /* return >= 0 */
+    int ret=n-nleft;
+    // printf(" ret : %d\n",ret);
+    return ret;         /* return >= 0 */
 }
 /* $end rio_readnb */
 
@@ -909,8 +915,8 @@ ssize_t Rio_readnb(rio_t *rp, void *usrbuf, size_t n)
 {
     ssize_t rc;
 
-    if ((rc = rio_readnb(rp, usrbuf, n)) < 0)
-	unix_error("Rio_readnb error");
+    if ((rc = rio_readnb(rp, usrbuf, n)) < 0){
+	unix_error("Rio_readnb error");}
     return rc;
 }
 
@@ -992,6 +998,7 @@ int open_listenfd(char *port)
             continue;  /* Socket failed, try the next */
 
         /* Eliminates "Address already in use" error from bind */
+        // setsockopt(cmd.connfd,IPPROTO_TCP,TCP_NODELAY,(char*)&flag,sizeof(int));
         Setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR,    //line:netp:csapp:setsockopt
                    (const void *)&optval , sizeof(int));
 

@@ -7,8 +7,8 @@ static void add_client(int connfd);
 static void sendData(void *data, uint32_t datalen,int fd)
 {
     uint32_t len = htonl(datalen);
-    send(fd, &len, sizeof(len), 0);
-    send(fd, data, datalen, 0);
+    // send(fd, &len, sizeof(len), 0);
+    send(fd, data, datalen, MSG_DONTWAIT);
 }
 
 static void execute(struct command cmd){
@@ -31,36 +31,7 @@ static void execute(struct command cmd){
         strcpy(res,"NOT ENOUGH LEFT STOCK\n");
     }
     strcat(res,cmd.result);
-    // printf("res %s",res);
-    // char test[MAXLINE]="this\nis\nthe\ntest";
-    strcat(res,"\r\n");
-        // printf("strlen %ld\n",strlen(res));
-    // pid_t pid=fork();
-
-    // if(pid==0){
-        sendData(res,strlen(res),cmd.connfd);
-
-    //     close(cmd.connfd);
-    //     exit(0);
-    // }
-    // else waitpid(pid,NULL,0);
-    // Rio_writen(cmd.connfd,res,strlen(res));
-    // send(cmd.connfd,res,strlen(res),MSG_NOSIGNAL);
-    int flag=0;
-    // https://stackoverflow.com/questions/26154074/c-socket-add-header-before-data-stream
-    // https://stackoverflow.com/questions/45747973/in-c-how-to-indicate-eof-after-writing-data-without-close-shutdown-a-socket
-    // flush socket descriptor
-    // https://stackoverflow.com/questions/855544/is-there-a-way-to-flush-a-posix-socket
-    // setsockopt(cmd.connfd,IPPROTO_TCP,TCP_NODELAY,(char*)&flag,sizeof(int));
-    // shutdown(cmd.connfd,SHUT_RDWR);
-    // Rio_writen(cmd.connfd,EOF,1);
-    // fcntl(cmd.connfd);
-    // close(cmd.connfd);
-    // ioctl(cmd.connfd,0);
-    // fsync(cmd.connfd);
-    // fflus
-    // send(cmd.connfd,test,strlen(test),0);
-    // write(cmd.connfd,res,strlen(res));
+    Rio_writen(cmd.connfd,res,MAXLINE);
 }
 
 
@@ -84,6 +55,9 @@ void see_pool(void){
     if(FD_ISSET(listenfd,&_pool.ready_set)){
         clientlen=sizeof(struct sockaddr_storage);
         int connfd=accept(listenfd,(struct sockaddr*)&clientaddr,&clientlen);
+        // connfd=accept4()
+        int flag=fcntl(connfd,F_GETFL,0);
+        fcntl(connfd,F_SETFL,flag|O_NONBLOCK);
         add_client(connfd);
         char clienthostname[MAXLINE],clientport[MAXLINE];
         getnameinfo((SA*)&clientaddr,sizeof(clientaddr),clienthostname,MAXLINE,clientport,MAXLINE,0);
@@ -112,19 +86,19 @@ void write_pool(void){
                 st=parser(buf,rc,&cmd);
 
                 if(st==NOCMD){
-                    Rio_writen(cmd.connfd,"no such command\n",16);
+                    Rio_writen(cmd.connfd,"no such command\n",MAXLINE);
                     // continue;
                 }else if(st==INVARG){
-                    Rio_writen(cmd.connfd,"invalid argument\n",20);
+                    Rio_writen(cmd.connfd,"invalid argument\n",MAXLINE);
                     // continue;
                 }else if(st==NL){
-                    Rio_writen(cmd.connfd,"please type command\n",20);
+                    Rio_writen(cmd.connfd,"please type command\n",MAXLINE);
                     // continue;
                 }else execute(cmd);
-                int prev=cmd.connfd;
-                cmd.connfd=accept(cmd.connfd,(struct sockaddr*)&clientaddr,&clientlen);
+                // int prev=cmd.connfd;
+                // cmd.connfd=accept(cmd.connfd,(struct sockaddr*)&clientaddr,&clientlen);
                 // close(prev);
-                add_client(cmd.connfd);
+                // add_client(cmd.connfd);
                 // close(prev);
             }else{
                 

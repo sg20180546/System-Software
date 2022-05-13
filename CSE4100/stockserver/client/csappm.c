@@ -801,10 +801,10 @@ static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n)
     // assert(rp);
     // assert(rp->rio_cnt);
     // printf("before read: int the rio_read : rp->rio_cnt=%d\n",rp->rio_cnt);
-		printf("bug point\n");
+		// printf("bug point\n");
     rp->rio_cnt = read(rp->rio_fd, rp->rio_buf,  //bug
 			   sizeof(rp->rio_buf));
-    	printf("bug\n");
+    	// printf("bug\n");
     // printf("int the rio_read : rp->rio_cnt=%d\n",rp->rio_cnt);
 	if (rp->rio_cnt < 0) {
 	    if (errno != EINTR) /* Interrupted by sig handler return */
@@ -864,7 +864,7 @@ ssize_t rio_readnb(rio_t *rp, void *usrbuf, size_t n)
         // printf("nread zero]\n");
         break;
     }
-	printf("\nnread : %ld bufp : %s",nread,bufp);
+	// printf("\nnread : %ld bufp :\n%s",nread,bufp);
                       /* EOF */
         // printf("nread %ld  nleft %ld",nread,nleft);
 	nleft -= nread;

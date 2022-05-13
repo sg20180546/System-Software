@@ -19,17 +19,22 @@ struct stock* insert(struct stock* root,int id,int count, int price){
     return root;
 }
 
-STATUS print_to_buf(struct stock* root,char* buf){
+static STATUS _print_to_buf(struct stock* root,char* buf){
     if(root==NULL) return ERROR;
     char cat_buf[MAXLINE];
     sprintf(cat_buf,"%d %d %d\n",root->id,root->count,root->price);
     
     
     strcat(buf,cat_buf);
-    print_to_buf(root->left,buf);
-    print_to_buf(root->right,buf);
+    _print_to_buf(root->left,buf);
+    _print_to_buf(root->right,buf);
     return SUCCESS;
 }
+
+STATUS print_to_buf(struct stock* root,char* buf){
+    return _print_to_buf(root,buf);
+}
+
 
 STATUS modify(int id,int count){
     struct stock* stock=find(id,_root);
