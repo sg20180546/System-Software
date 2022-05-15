@@ -6,24 +6,19 @@ int main(int argc,char** argv){
 
     read_stockfile();
 
-
     listenfd=open_listenfd(argv[1]);
-
-    for(i=0;i<NTHREADS;i++) pthread_create(&tid,NULL,get_fd,NULL);
+    pthread_create(&fsync_worker_thread_tid,NULL,fsync_worker,NULL);
+    for(i=0;i<NETWORK_WORKER_THREAD_N;i++) 
+        pthread_create(&nework_worker_thread_tid[i],NULL,network_worker,NULL);
+    
     clientlen=sizeof(clientaddr);
-    mutex_init(&sbuf,NTHREADS);
+    mutex_init(&sbuf,PENDING_CONNECTION_N);
 
 
 
     while(1){
         connfd=accept(listenfd,(SA*)&clientaddr,&clientlen);
-        sbuf_insert(&sbuf,connfd);
-
-        if(cur_connection==0){
-            fsync_stockfile();
-        }
+        sbuf_insert(&sbuf,connfd,clientaddr);
     }
-
-    
-
+    return 0;
 }

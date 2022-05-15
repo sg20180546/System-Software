@@ -1,9 +1,22 @@
-#ifndef MUTEX_H_
-#define MUTEX_H_
+#ifndef THREADING_H_
+#define THREADING_H_
 #include "common.h"
+#include "network.h"
+#include "stockfile_handle.h"
+
+
+
+
+
+
+
+typedef struct _waiting_connfd {
+    int connfd;
+    struct sockaddr_storage clientaddr;
+}waiting_connfd;
 
 typedef struct{
-    int *buf;
+    waiting_connfd *waiting_connfd;
     int n;
     int front,rear;
     sem_t mutex;
@@ -11,26 +24,21 @@ typedef struct{
     sem_t items;
 } sbuf_t;
 
-typedef struct{
-
-} queue;
-
 void mutex_init(sbuf_t*sp,int n);
 void sbuf_deinit(sbuf_t*sp);
-void sbuf_insert(sbuf_t* sp,int item);
-int sbuf_remove(sbuf_t* sp);
-void* get_fd(void* vargp);
-
+void sbuf_insert(sbuf_t* sp,int item,struct sockaddr_storage ss);
+waiting_connfd sbuf_remove(sbuf_t* sp);
+void* network_worker(void* vargp);
+void* fsync_worker(void* vargp);
 sem_t writer_n_mutex;
-sem_t writer_prior_lock; // binary
-
 sem_t reader_n_mutex;
 int reader_n;
 int writer_n;
 
+sem_t idle_threads;
+
 sbuf_t sbuf;
 
-int cur_connection=0;
 
 // sem_t writer_mutex; go to in the struct stock
 // sem_t reader_n;

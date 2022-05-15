@@ -2,17 +2,10 @@
 #define IMPL_H_
 #include "common.h"
 #include "binary_tree.h"
-#include "mutex.h"
-struct command{
-    int flag;
-    int connfd;
-    int poolidx;
-    char name[10];
-    char result[MAXLINE];
-    char** args;
-    int argc;
-    STATUS (*fp)(struct command*);
-};
+#include "threading.h"
+#define NOARGS 0x0
+#define INTINT 0x1
+
 
 extern struct command command_list[];
 

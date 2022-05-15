@@ -10,7 +10,7 @@ struct command command_list[]={
 
 STATUS show(struct command* cmd){
     STATUS st;
-    free_args(cmd);
+    
     while(writer_n); // if there is writer, reader queue stop increasing
 
     sem_wait(&reader_n_mutex);
@@ -30,7 +30,7 @@ STATUS sell(struct command* cmd){
     STATUS st;
     int args1=atoi(cmd->args[1]);
     int args2=atoi(cmd->args[2]);
-    free_args(cmd);
+    
 
     sem_wait(&writer_n_mutex);
     writer_n++;
@@ -51,7 +51,7 @@ STATUS buy(struct command* cmd){
     STATUS st;
     int args1=atoi(cmd->args[1]);
     int args2=atoi(cmd->args[2]);
-    free_args(cmd);
+    
 
 
     sem_wait(&writer_n_mutex);
@@ -70,8 +70,8 @@ STATUS buy(struct command* cmd){
 }
 
 STATUS exit_client(struct command* cmd){
-    free_args(cmd);
-    if(remove_client(cmd->connfd)){
+    
+    if(socket_close(cmd->connfd)){
         return SUCCESS;
     }
     return ERROR;

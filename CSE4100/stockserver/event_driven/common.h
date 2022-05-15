@@ -41,13 +41,23 @@ struct stock{
     struct stock* left;
     struct stock* right;
 };
-
 typedef enum _STATUS{
     SUCCESS,ERROR,NOCMD,INVARG,NOTENOUGHERR,NL
 }STATUS;
+struct command{
+    int flag;
+    int connfd;
+    int poolidx;
+    char name[10];
+    char result[MAXLINE];
+    char** args;
+    int argc;
+    STATUS (*fp)(struct command*);
+};
+
+
 
 FILE* fp;
-STATUS status;
 struct stock* _root;
 clock_t time1;
 clock_t time2;

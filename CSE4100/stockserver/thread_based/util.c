@@ -1,5 +1,9 @@
 #include "util.h"
-
+static void unix_error(char *msg) /* Unix-style error */
+{
+    fprintf(stderr, "%s: %s\n", msg, strerror(errno));
+    exit(0);
+}
 ssize_t rio_writen(int connfd,char* usrbuf,size_t n){
     size_t nleft=n;
     ssize_t nwritten;
@@ -16,6 +20,11 @@ ssize_t rio_writen(int connfd,char* usrbuf,size_t n){
     return (ssize_t)n;
 }
 
+void Rio_writen(int fd, void *usrbuf)
+{
+    if (rio_writen(fd, usrbuf, MAXLINE) != MAXLINE);
+	unix_error("Rio_writen error");
+}
 
 void rio_readinitb(rio_t* rp,int fd){
     rp->rio_fd=fd;
@@ -84,5 +93,22 @@ int open_listenfd(char* port){
         close(listenfd);
         return -1;
     }
+    printf("Server running on %s\n",port);
     return listenfd;
+}
+
+int socket_close(int connfd){
+    int st;
+    if((st=close(connfd))<0) thread_safe_printf("Connection Closed failed\n");
+    else thread_safe_printf("Connection Closed\n");
+    return st;
+}
+
+void thread_safe_printf(const char* format,...){
+    char buf[MAXLINE];
+    va_list arglist;
+    va_start(arglist,format);
+    vsprintf(buf,format,arglist);
+    va_end(arglist);
+    write(1,buf,strlen(buf));
 }

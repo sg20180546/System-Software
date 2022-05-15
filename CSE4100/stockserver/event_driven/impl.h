@@ -6,16 +6,7 @@
 #define NOARGS 0x0
 #define INTINT 0x1
 
-struct command{
-    int flag;
-    int connfd;
-    int poolidx;
-    char name[10];
-    char result[MAXLINE];
-    char** args;
-    int argc;
-    STATUS (*fp)(struct command*);
-};
+
 
 STATUS show(struct command* cmd);
 

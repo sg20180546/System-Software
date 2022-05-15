@@ -106,6 +106,7 @@ int open_listenfd(char* port){
         close(listenfd);
         return -1;
     }
+    printf("Server running on %s\n",port);
     return listenfd;
 }
 

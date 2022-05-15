@@ -4,18 +4,19 @@
 static void execute(struct command cmd);
 static void add_client(int connfd);
 
-static void sendData(void *data, uint32_t datalen,int fd)
-{
-    uint32_t len = htonl(datalen);
-    // send(fd, &len, sizeof(len), 0);
-    send(fd, data, datalen, MSG_DONTWAIT);
+static void free_args(struct command* cmd){
+    int i;
+    for(i=0;i<cmd->argc;i++){
+        free(cmd->args[i]);
+    }
+    free(cmd->args);
 }
 
 static void execute(struct command cmd){
 
     if(cmd.name==NULL) return;
 
-    char res[MAXLINE]="[";
+    char res[MAXLINE]="\033[0m[";
     STATUS st;
     strcat(res,cmd.name);
     strcpy(cmd.result,"");
@@ -25,9 +26,9 @@ static void execute(struct command cmd){
 
     if(st==SUCCESS){
         strcat(res,"]\033[0;32msuccess\n\033[0m");
-    }else if(ERROR){
+    }else if(st==ERROR){
         strcat(res,"] failed\n");
-    }else if(NOTENOUGHERR){
+    }else if(st==NOTENOUGHERR){
         strcpy(res,"NOT ENOUGH LEFT STOCK\n");
     }
     strcat(res,cmd.result);
@@ -78,7 +79,6 @@ void write_pool(void){
         cmd.connfd=_pool.clientfd[i];
         cmd.poolidx=i;
         rio=_pool.clientrio[i];
-        int p=0;
         if((cmd.connfd>0)&&(FD_ISSET(cmd.connfd,&_pool.ready_set))){
             _pool.nready--;
             if((rc=rio_readlineb(&rio,buf,MAXLINE))!=0){
@@ -86,20 +86,14 @@ void write_pool(void){
                 st=parser(buf,rc,&cmd);
 
                 if(st==NOCMD){
-                    Rio_writen(cmd.connfd,"no such command\n",MAXLINE);
-                    // continue;
+                    Rio_writen(cmd.connfd,"No Such Command\n",MAXLINE);
                 }else if(st==INVARG){
-                    Rio_writen(cmd.connfd,"invalid argument\n",MAXLINE);
-                    // continue;
+                    Rio_writen(cmd.connfd,"Invalid Argument\n",MAXLINE);
                 }else if(st==NL){
-                    Rio_writen(cmd.connfd,"please type command\n",MAXLINE);
-                    // continue;
+                    Rio_writen(cmd.connfd,"Please Type Command\n",MAXLINE);
                 }else execute(cmd);
-                // int prev=cmd.connfd;
-                // cmd.connfd=accept(cmd.connfd,(struct sockaddr*)&clientaddr,&clientlen);
-                // close(prev);
-                // add_client(cmd.connfd);
-                // close(prev);
+
+                free_args(&cmd);
             }else{
                 
                 remove_client(cmd.connfd,i);

@@ -39,9 +39,10 @@ STATUS print_to_buf(struct stock* root,char* buf){
 STATUS modify(int id,int count){
     struct stock* stock=find(id,_root);
     if(stock==NULL){
+        printf("NULL ERROR\n");
         return ERROR;
     } 
-    if((stock->count+count)<0){
+    if((stock->count+count)<=0){
         return NOTENOUGHERR;
     } 
     stock->count+=count;

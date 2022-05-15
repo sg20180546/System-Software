@@ -10,9 +10,14 @@ typedef struct _rio_t{
 } rio_t;
 
 void rio_readinitb(rio_t* rp,int fd);
-ssize_t rio_writen(int connfd,char* usrbuf,size_t n);
+void Rio_writen(int fd, void *usrbuf);
 ssize_t rio_readlineb(rio_t *rp,void* usrbuf,size_t maxlen);
 ssize_t rio_read(rio_t* rp,char*usrbuf,size_t n);
 int open_listenfd(char* port);
+void thread_safe_printf(const char* format,...);
+int socket_close(int connfd);
+
+// printf()
+
 
 #endif
