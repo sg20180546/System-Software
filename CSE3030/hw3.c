@@ -34,6 +34,7 @@ int func(int a){
 }
 
 //func(1)==3628800
+// 1+2+3+4+5+6+7+8+9+1=
 int func(int a){
     unsigned short i=0;
     int result=a;
@@ -44,6 +45,7 @@ loop:
         i++;
         goto loop;
     done:
+        return result;
 }
 
 

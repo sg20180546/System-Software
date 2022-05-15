@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "stockfile_handle.h": "c",
+        "binary_tree.h": "c",
+        "common.h": "c"
+    }
+}

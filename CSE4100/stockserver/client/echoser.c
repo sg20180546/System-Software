@@ -1,4 +1,4 @@
-#include "../csapp.h"
+#include "./csapp.h"
 
 
 typedef struct{
@@ -31,6 +31,8 @@ int main(int argc,char** argv){
         if(FD_ISSET(listenfd,&pool.ready_set)){
             clientlen=sizeof(struct sockaddr_storage);
             connfd=Accept(listenfd,(SA*)&clientaddr,&clientlen);
+            // int flag=fcntl(connfd,F_GETFL,0);
+            // fcntl(connfd,F_SETFL,flag|O_NONBLOCK);
             add_client(connfd,&pool);
         }
         
@@ -81,7 +83,7 @@ void check_client(pool *p){
                 byte_cnt+=n;
                 printf("Server received %d (%d total) bytes on Fd %d\n",n,byte_cnt,connfd);
                 strcat(buf-2,"my name is\ntest\nhello");
-                Rio_writen(connfd,buf,strlen(buf));
+                Rio_writen(connfd,buf,8192);
             }else{
                 printf("server terminated\n");
                 Close(connfd);
@@ -91,4 +93,3 @@ void check_client(pool *p){
         }
     }
 }
-// 1019

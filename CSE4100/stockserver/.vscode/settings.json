@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "stockserver.h": "c",
+        "signal.h": "c",
+        "ioctls.h": "c",
+        "ioctl-types.h": "c",
+        "typeinfo": "c",
+        "util.h": "c",
+        "csapp.h": "c",
+        "common.h": "c",
+        "semaphore.h": "c",
+        "cstdio": "c",
+        "stdio.h": "c",
+        "thread.h": "c",
+        "threading.h": "c",
+        "network.h": "c",
+        "stockfile_handle.h": "c"
+    }
+}

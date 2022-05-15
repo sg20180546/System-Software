@@ -28,7 +28,7 @@ int main(int argc,char** argv){
     while(1){
         clientlen=sizeof(struct sockaddr_storage);
         connfd=Accept(listen,(SA*)&clientaddr,&clientlen);
-        sbuf_insert(&sbuf,connfd);
+        sbuf_innsert(&sbuf,connfd);
     }
 }
 
@@ -42,7 +42,7 @@ void* thread(void* vargp){
 }
 
 static void init_echo_cnt(void){
-    Sem_init(&mutex,0,1);
+    Sem_init(&mutex,0,1); //?a
     byte_cnt=0;
 }
 void echo_cnt(int connfd){
