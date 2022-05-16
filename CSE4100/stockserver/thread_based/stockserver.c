@@ -5,9 +5,10 @@ int main(int argc,char** argv){
     if(argc!=2) exit(0);
 
     read_stockfile();
+    signal(SIGSYNC,sigsync_handler);
 
     listenfd=open_listenfd(argv[1]);
-    pthread_create(&fsync_worker_thread_tid,NULL,fsync_worker,NULL);
+    // pthread_create(&fsync_worker_thread_tid,NULL,fsync_worker,NULL);
     for(i=0;i<NETWORK_WORKER_THREAD_N;i++) 
         pthread_create(&nework_worker_thread_tid[i],NULL,network_worker,NULL);
     
@@ -18,6 +19,7 @@ int main(int argc,char** argv){
 
     while(1){
         connfd=accept(listenfd,(SA*)&clientaddr,&clientlen);
+        printf("connfd : %d\n",connfd);
         sbuf_insert(&sbuf,connfd,clientaddr);
     }
     return 0;

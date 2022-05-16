@@ -16,7 +16,7 @@ ssize_t rio_read(rio_t* rp,char*usrbuf,size_t n);
 int open_listenfd(char* port);
 void thread_safe_printf(const char* format,...);
 int socket_close(int connfd);
-
+void print_sem_value(sem_t* s);
 // printf()
 
 
