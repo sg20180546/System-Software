@@ -15,23 +15,21 @@ void* network_worker(void* vargp){
         sem_post(&idle_threads);
         
         sem_getvalue(&idle_threads,&idle_thread_n);
+        // bug point
+        // print_sem_value
         if(idle_thread_n==NETWORK_WORKER_THREAD_N){
-            sem_wait(&sbuf.mutex); // while fsync workers cannot get connection fd
-            kill(fsync_worker_thread_tid,SIGCONT); // wake up fsync_worker thread
+            sem_wait(&sbuf.mutex);
+            kill(getpid(),SIGSYNC);
         } 
     }
+    return NULL;
 }
 
-void* fsync_worker(void* vargp){
-    sigset_t ss;
-    pthread_detach(pthread_self());
-    while(1){
-        sigsuspend(&ss);
-        fsync_stockfile();
-        sem_post(&sbuf.mutex);
-    }
-
+void sigsync_handler(int sig){
+    fsync_stockfile();
+    sem_post(&sbuf.mutex);
 }
+
 
 
 void mutex_init(sbuf_t * sp,int n){
@@ -39,6 +37,7 @@ void mutex_init(sbuf_t * sp,int n){
     reader_n=0;
     sem_init(&reader_n_mutex,0,1);
     sem_init(&writer_n_mutex,0,1);
+    sem_init(&fsync_worker_mutex,0,0);
     sem_init(&idle_threads,0,NETWORK_WORKER_THREAD_N);
     sp->waiting_connfd=calloc(n,sizeof(waiting_connfd));
     sp->n=n;

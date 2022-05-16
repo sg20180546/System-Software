@@ -19,8 +19,8 @@ static void execute(struct command cmd){
     st=cmd.fp(&cmd);
 
     if(st==SUCCESS) strcat(res,"]\033[0;32msuccess\n\033[0m");
-    else if(ERROR) strcat(res,"] failed\n");
-    else if(NOTENOUGHERR)  strcpy(res,"NOT ENOUGH LEFT STOCK\n");
+    else if(st==ERROR) strcat(res,"] failed\n");
+    else if(st==NOTENOUGHERR)  strcpy(res,"NOT ENOUGH LEFT STOCK\n");
     strcat(res,cmd.result);
     Rio_writen(cmd.connfd,res);
 }
@@ -34,9 +34,9 @@ void service(int connfd,char* hostname,char* port){
     struct command cmd;
     cmd.connfd=connfd;
     rio_readinitb(&rp,connfd);
-    
+    // thread_safe_printf("connfd :%d\n",connfd);
     while(1){ 
-        if((rc=rio_readlineb(&rp,thread_safe_local_buf,MAXLINE)!=0)){
+        if((rc=rio_readlineb(&rp,thread_safe_local_buf,MAXLINE))!=0){
             thread_safe_printf("Server received %ld bytes\n",rc);
             st=parser(thread_safe_local_buf,rc,&cmd);
 

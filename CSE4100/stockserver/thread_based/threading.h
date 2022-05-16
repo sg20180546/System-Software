@@ -29,9 +29,12 @@ void sbuf_deinit(sbuf_t*sp);
 void sbuf_insert(sbuf_t* sp,int item,struct sockaddr_storage ss);
 waiting_connfd sbuf_remove(sbuf_t* sp);
 void* network_worker(void* vargp);
-void* fsync_worker(void* vargp);
+void sigsync_handler(int sig);
+
+
 sem_t writer_n_mutex;
 sem_t reader_n_mutex;
+sem_t fsync_worker_mutex;
 int reader_n;
 int writer_n;
 

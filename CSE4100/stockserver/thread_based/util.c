@@ -22,8 +22,7 @@ ssize_t rio_writen(int connfd,char* usrbuf,size_t n){
 
 void Rio_writen(int fd, void *usrbuf)
 {
-    if (rio_writen(fd, usrbuf, MAXLINE) != MAXLINE);
-	unix_error("Rio_writen error");
+    if (rio_writen(fd, usrbuf, MAXLINE) != MAXLINE) unix_error("Rio_writen error");
 }
 
 void rio_readinitb(rio_t* rp,int fd){
@@ -111,4 +110,13 @@ void thread_safe_printf(const char* format,...){
     vsprintf(buf,format,arglist);
     va_end(arglist);
     write(1,buf,strlen(buf));
+}
+
+void print_sem_value(sem_t* s){
+    int n;
+    char res[64];
+    sem_getvalue(s,&n);
+    sprintf(res,"sem value :%d\n",n);
+    write(1,res,strlen(res));
+    return;
 }

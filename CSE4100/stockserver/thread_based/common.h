@@ -11,6 +11,7 @@
 #include <semaphore.h>
 #include <stdarg.h>
 #include <signal.h>
+#include <assert.h>
 #define LISTENQ  1024
 #define RIO_BUFSIZE 8192
 #define NETWORK_WORKER_THREAD_N 8
@@ -55,12 +56,6 @@ struct command{
 };
 
 
-// typedef struct{
-//     int connfd;
-//     struct sockaddr clientaddr;
-// } waiting_connfd;
-
-
 FILE* fp;
 struct stock* _root;
 struct sockaddr_storage clientaddr;
@@ -69,6 +64,5 @@ int listenfd;
 int connfd;
 int i;
 pthread_t nework_worker_thread_tid[NETWORK_WORKER_THREAD_N];
-pthread_t fsync_worker_thread_tid;
 
 #endif
