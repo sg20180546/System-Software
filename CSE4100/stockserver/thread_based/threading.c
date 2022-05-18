@@ -9,14 +9,11 @@ void* network_worker(void* vargp){
         sem_wait(&idle_threads);
         char clienthostname[MAXLINE],clientport[MAXLINE];
         getnameinfo((SA*)&wc.clientaddr,sizeof(wc.clientaddr),clienthostname,MAXLINE,clientport,MAXLINE,0);
-        printf("Connected to (%s:%s)\n",clienthostname,clientport);
+        thread_safe_printf("Connected to (%s:%s)\n",clienthostname,clientport);
         service(wc.connfd,clienthostname,clientport);
-        //after connection close, cur_Connection--;
         sem_post(&idle_threads);
         
         sem_getvalue(&idle_threads,&idle_thread_n);
-        // bug point
-        // print_sem_value
         if(idle_thread_n==NETWORK_WORKER_THREAD_N){
             sem_wait(&sbuf.mutex);
             kill(getpid(),SIGSYNC);

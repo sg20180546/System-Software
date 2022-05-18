@@ -1,6 +1,8 @@
-#include "common_test.h"
-#include "../stockfile_handle.h"
-#include "../binary_tree.h"
+#include "../common_test/common_test.h"
+
+#include "../../event_driven/stockfile_handle.h"
+#include "../../event_driven/binary_tree.h"
+
 int node_count=0;
 int main(int argc,char**argv){
     int fd;

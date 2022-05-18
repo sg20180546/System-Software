@@ -21,6 +21,7 @@
 #define MAX_STOCK 16
 #define MAXLINE 8192
 #define STOCK_FILE_PATH "./stock.txt"
+                        
 #define RIO_BUFSIZE 8192
 #define COMMAND_N 4
 #define LISTENQ 1024

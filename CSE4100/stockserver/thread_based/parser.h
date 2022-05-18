@@ -3,7 +3,7 @@
 #include "common.h"
 #include "impl.h"
 
-STATUS find_cmd(char buf[],struct command* cmd,int* p);
-STATUS find_args(char* buf,struct command* cmd);
-STATUS parser(char* buf,int rc,struct command* cmd);
+STATUS find_cmd(char buf[],struct connection* cnct,int* p);
+STATUS find_args(char* buf,struct connection* cnct);
+STATUS parser(char* buf,int rc,struct connection* cnct);
 #endif

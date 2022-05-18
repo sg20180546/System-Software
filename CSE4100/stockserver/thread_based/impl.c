@@ -1,6 +1,6 @@
 #include "impl.h"
 
-struct command command_list[]={
+struct connection connection_frame[]={
     {.flag=0x0,.name="show",.fp=show},
     {.flag=0x1,.name="sell",.fp=sell},
     {.flag=0x1,.name="buy",.fp=buy},
@@ -8,7 +8,7 @@ struct command command_list[]={
 };
 
 
-STATUS show(struct command* cmd){
+STATUS show(struct connection * cnct){
     STATUS st;
     
     while(writer_n); // if there is writer, reader queue stop increasing
@@ -17,7 +17,7 @@ STATUS show(struct command* cmd){
     reader_n++;
     sem_post(&reader_n_mutex);
 
-    st=print_to_buf(_root,cmd->result);
+    st=print_to_buf(_root,cnct->result);
 
     sem_wait(&reader_n_mutex);
     reader_n--;
@@ -26,10 +26,10 @@ STATUS show(struct command* cmd){
     return st;
 }
 
-STATUS sell(struct command* cmd){
+STATUS sell(struct connection * cnct){
     STATUS st;
-    int args1=atoi(cmd->args[1]);
-    int args2=atoi(cmd->args[2]);
+    int args1=atoi(cnct->args[1]);
+    int args2=atoi(cnct->args[2]);
     
 
     sem_wait(&writer_n_mutex);
@@ -47,10 +47,10 @@ STATUS sell(struct command* cmd){
     return st;
 }
 
-STATUS buy(struct command* cmd){
+STATUS buy(struct connection * cnct){
     STATUS st;
-    int args1=atoi(cmd->args[1]);
-    int args2=atoi(cmd->args[2]);
+    int args1=atoi(cnct->args[1]);
+    int args2=atoi(cnct->args[2]);
     
 
 
@@ -69,9 +69,9 @@ STATUS buy(struct command* cmd){
     return st;
 }
 
-STATUS exit_client(struct command* cmd){
+STATUS exit_client(struct connection * cnct){
     
-    if(socket_close(cmd->connfd)){
+    if(socket_close(cnct->connfd,cnct->clienthostname,cnct->clientport)){
         return SUCCESS;
     }
     return ERROR;

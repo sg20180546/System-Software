@@ -32,6 +32,13 @@
                     if(x) free(x); }
 #define whitespace(x) ( ( (x) ==SPACE) || ( (x) == TAB)  )
 
+// Environment Variable
+#define TEST_AT_ONCE 0x0
+#define TEST 0x1
+#define PRODUCTION 0x2
+int mode;
+
+
 typedef struct sockaddr SA;
 struct stock{
     int id;
@@ -45,14 +52,16 @@ typedef enum _STATUS{
     SUCCESS,ERROR,NOCMD,INVARG,NOTENOUGHERR,NL
 }STATUS;
 
-struct command{
+struct connection{
     int connfd;
+    char* clienthostname;
+    char* clientport;
     int flag;
     char name[10];
     char result[MAXLINE];
     char** args;
     int argc;
-    STATUS (*fp)(struct command*);
+    STATUS (*fp)(struct connection*);
 };
 
 

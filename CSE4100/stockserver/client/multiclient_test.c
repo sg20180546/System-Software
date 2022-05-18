@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 			return -1;
 		/*	child process		*/
 		else if(pids[runprocess] == 0){
-			printf("child %ld\n", (long)getpid());
+			// printf("child %ld\n", (long)getpid());
 
 			clientfd = Open_clientfd(host, port);
 			Rio_readinitb(&rio, clientfd);
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 				Rio_writen(clientfd, buf, strlen(buf));
 				// Rio_readlineb(&rio, buf, MAXLINE);
 				Rio_readnb(&rio, buf, MAXLINE);
-				Fputs(buf, stdout);
+				// Fputs(buf, stdout);
 
 				usleep(1000000);
 			}

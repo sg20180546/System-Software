@@ -92,18 +92,19 @@ int open_listenfd(char* port){
         close(listenfd);
         return -1;
     }
-    printf("Server running on %s\n",port);
+    thread_safe_printf("Server running on %s\n",port);
     return listenfd;
 }
 
-int socket_close(int connfd){
+int socket_close(int connfd,char* clienthostname,char* port){
     int st;
     if((st=close(connfd))<0) thread_safe_printf("Connection Closed failed\n");
-    else thread_safe_printf("Connection Closed\n");
+    else thread_safe_printf("Connection Closed (%s:%s)\n",clienthostname,port);
     return st;
 }
 
 void thread_safe_printf(const char* format,...){
+    if(mode==TEST_AT_ONCE) return;
     char buf[MAXLINE];
     va_list arglist;
     va_start(arglist,format);

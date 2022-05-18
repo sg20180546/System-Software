@@ -1,6 +1,5 @@
-#include "common_test.h"
-#include "../binary_tree.h"
-
+#include "common_e_test.h"
+#include "../../event_driven/binary_tree.h"
 short cur_node[MAXNODE+1];
 int node_count=0;
 // int i;
@@ -88,20 +87,23 @@ int main(int argc,char** argv){
         for(node_count=0;node_count<MAXNODE;node_count++){
             int dx=(rand()%200)-(rand()%200);
             node=find(info_arr[node_count].id,_root);
+            // printf("index %d result %d dx %d\n",node_count,result[node_count],dx);
             result[node_count]=node->count+dx;
             dx_arr[node_count]=dx;
+            
         }
         for(node_count=0;node_count<MAXNODE;node_count++){
 
             STATUS st=modify(info_arr[node_count].id,dx_arr[node_count]);
             node=find(info_arr[node_count].id,_root);
             assert(node);
+
             if(result[node_count]>=0){
                 CheckConditon(st==SUCCESS);
                 CheckConditon(node->count==result[node_count]);
                 info_arr[node_count].count=result[node_count];
             }else{
-                CheckConditon(st==ERROR);
+                CheckConditon(st==NOTENOUGHERR);
                 CheckConditon(node->count!=result[node_count]);
                 CheckConditon(node->count==info_arr[node_count].count);
             }

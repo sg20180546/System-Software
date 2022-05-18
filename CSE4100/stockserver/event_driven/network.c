@@ -49,14 +49,12 @@ void init_pool(int listenfd){
 
 
 void see_pool(void){
-    // printf(" see pool\n");
     _pool.ready_set=_pool.read_set;
     _pool.nready=select(_pool.maxfd+1,&_pool.ready_set,NULL,NULL,NULL);
 
     if(FD_ISSET(listenfd,&_pool.ready_set)){
         clientlen=sizeof(struct sockaddr_storage);
         int connfd=accept(listenfd,(struct sockaddr*)&clientaddr,&clientlen);
-        // connfd=accept4()
         int flag=fcntl(connfd,F_GETFL,0);
         fcntl(connfd,F_SETFL,flag|O_NONBLOCK);
         add_client(connfd);
@@ -64,7 +62,6 @@ void see_pool(void){
         getnameinfo((SA*)&clientaddr,sizeof(clientaddr),clienthostname,MAXLINE,clientport,MAXLINE,0);
         printf("Connected to (%s:%s)\n",clienthostname,clientport);
     }
-    // printf("exit see poool\n");
 }
 
 void write_pool(void){
