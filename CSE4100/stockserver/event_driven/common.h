@@ -8,7 +8,7 @@
 #include <string.h>
 #include <netdb.h>
 #include <errno.h>
-#include <time.h>
+#include <sys/time.h>
 #include <sys/ioctl.h>
 #include <signal.h>
 #include <netinet/tcp.h>
@@ -60,7 +60,15 @@ struct command{
 
 FILE* fp;
 struct stock* _root;
-clock_t time1;
-clock_t time2;
+struct timeval last_fsync_time,cur_time;
+// Environment Variable
+#define ONLY_ONCE 0x0
+#define BENCHMARK 0x1
+#define PRODUCTION 0x2
+
+int mode; //default : PRODUCTION
+
+#define SIGSERVERBOOTED SIGUSR1
+
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef COMMON_TEST_H_
 #define COMMON_TEST_H_
 #include <assert.h>
-#include <time.h>
+#include <sys/time.h>
 #include <signal.h>
 #include <unistd.h>
 #include <ifaddrs.h>
@@ -22,13 +22,13 @@
 #define E_SERVER_ELF_PATH "../../event_driven/stockserver"
 #define T_SERVER_ELF_PATH "../../thread_based/stockserver"
 const char* phase;
-clock_t start;
-clock_t end;
+struct timeval start;
 double time_taken;
 
-pid_t pid_server;
-pid_t pid_client[16];
-int cur_client_n=0;
+pid_t pid_server,pid_client;
+
+#define TICK(X) clock_t X = clock()
+#define TOCK(X) printf("time %s: %g sec.\n", (#X), (double)(clock() - (X)) / CLOCKS_PER_SEC)
 
 #define CheckConditon(cond) \
     if(!(cond)){ \
@@ -37,7 +37,7 @@ int cur_client_n=0;
     }   
 #define StartPhase(name) \
     fprintf(stderr,"=== Test %s\n",name);\
-    start=clock();\
+    gettimeofday(&start,NULL); \
     phase=name;
 
 

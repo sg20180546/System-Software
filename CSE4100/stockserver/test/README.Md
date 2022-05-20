@@ -9,3 +9,5 @@ test
 3. issue
 - client test version -> if debug mode not print result on stdout
 - event_driven : server debug mode : no printf
+- test stock.txt bug
+- thread_based : argv thread_n

@@ -5,29 +5,40 @@ int main(int argc,char** argv){
     signal(SIGSYNC,sigsync_handler);
 
     if(argc<2){
-        error_exit("usage : ./stockserver {port} mode\n");
+        error_exit("usage : ./stockserver {port} {mode} {thread_n}\n");
     } 
+
+
+    if(argv[3][0]){
+        int n=atoi(argv[3]);
+        NETWORK_WORKER_THREAD_N=n;
+    }else NETWORK_WORKER_THREAD_N=NETWORK_WORKER_THREAD_N_DEFAULT;
+
+    mutex_init(&sbuf,PENDING_CONNECTION_N);
+
     read_stockfile();
     listenfd=open_listenfd(argv[1]);
-
     for(i=0;i<NETWORK_WORKER_THREAD_N;i++) 
         pthread_create(&nework_worker_thread_tid[i],NULL,network_worker,NULL);
     clientlen=sizeof(clientaddr);
-    mutex_init(&sbuf,PENDING_CONNECTION_N);
-    
-    mode=PRODUCTION;
+
+
+
     if(argv[2]){
-        if(!strcmp(argv[2],"BENCHMARK") || !strcmp(argv[2],"TEST") ) mode=TEST;
+        if(!strcmp(argv[2],"BENCHMARK") || !strcmp(argv[2],"TEST") ){
+            mode=BENCHMARK;
+            // close(STDOUT_FILENO);
+            kill(getppid(),SIGSERVERBOOTED);
+        }else{
+            mode=PRODUCTION;
+        }
     }
+    
 
     
     while(1){
-        if(mode==TEST){ // RUN AT BENCHMARK, ONLY ONCE
-            kill(getppid(),SIGUSR1);
-            mode=TEST_AT_ONCE;
-        }
         connfd=accept(listenfd,(SA*)&clientaddr,&clientlen);
-        sbuf_insert(&sbuf,connfd,clientaddr);
+        if(connfd>listenfd) sbuf_insert(&sbuf,connfd,clientaddr);
     }
     return 0;
 }

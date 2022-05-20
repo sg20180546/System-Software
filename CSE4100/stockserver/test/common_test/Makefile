@@ -1,4 +1,4 @@
 c_test:
-	gcc -o stockserver_test stockserver_test.c
+	gcc -o benchmark benchmark.c
 clean:
-	rm *test
+	rm *test benchmark

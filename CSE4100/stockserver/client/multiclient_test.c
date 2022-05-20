@@ -2,7 +2,7 @@
 #include <time.h>
 
 #define MAX_CLIENT 100
-#define ORDER_PER_CLIENT 10
+#define ORDER_PER_CLIENT 10000
 #define STOCK_NUM 10
 #define BUY_SELL_MAX 10
 
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 				Rio_readnb(&rio, buf, MAXLINE);
 				// Fputs(buf, stdout);
 
-				usleep(1000000);
+				// usleep(10000);
 			}
 
 			Close(clientfd);
@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 		waitpid(pids[i], &status, 0);
 	}
 
-
+	exit(0);
 	/*clientfd = Open_clientfd(host, port);
 	Rio_readinitb(&rio, clientfd);
 

@@ -104,7 +104,7 @@ int socket_close(int connfd,char* clienthostname,char* port){
 }
 
 void thread_safe_printf(const char* format,...){
-    if(mode==TEST_AT_ONCE) return;
+    if(mode==BENCHMARK) return;
     char buf[MAXLINE];
     va_list arglist;
     va_start(arglist,format);
