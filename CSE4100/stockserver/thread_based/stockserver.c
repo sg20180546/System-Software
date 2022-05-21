@@ -8,12 +8,14 @@ int main(int argc,char** argv){
         error_exit("usage : ./stockserver {port} {mode} {thread_n}\n");
     } 
 
-
-    if(argv[3][0]){
+    NETWORK_WORKER_THREAD_N=NETWORK_WORKER_THREAD_N_DEFAULT;
+    if(argv[3]){
+        // printf("ar %s c : %c",argv[3],argv[3][0]);
         int n=atoi(argv[3]);
-        NETWORK_WORKER_THREAD_N=n;
-    }else NETWORK_WORKER_THREAD_N=NETWORK_WORKER_THREAD_N_DEFAULT;
-
+        if(n) NETWORK_WORKER_THREAD_N=n;
+    }
+    
+    
     mutex_init(&sbuf,PENDING_CONNECTION_N);
 
     read_stockfile();
@@ -38,6 +40,7 @@ int main(int argc,char** argv){
     
     while(1){
         connfd=accept(listenfd,(SA*)&clientaddr,&clientlen);
+        // printf("%d\n",connfd);
         if(connfd>listenfd) sbuf_insert(&sbuf,connfd,clientaddr);
     }
     return 0;

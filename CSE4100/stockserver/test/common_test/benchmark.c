@@ -55,23 +55,24 @@ int main(int argc,char** argv){
     char* SERVER_ELF_PATH;
     signal(SIGCHLD,client_reaper);
     signal(SIGENDCLOCK,endclock);
-    if(argc<2){
-        fprintf(stdout,"usage : %s <port> <clientnumber> <-soption>\n",argv[0]);
+    if(argc<5){
+        fprintf(stdout,"usage : %s <port> <client_number> <total_query> <-soption>\n",argv[0]);
         exit(0);
     }
     
     port=argv[1];
     client_n=argv[2];
+    total_order=argv[3];
     server_ipaddr=getserveripaddr();
 
-    if(!strcmp(argv[3],"-e")){
+    if(!strcmp(argv[4],"-e")){
         SERVER_ELF_PATH=E_SERVER_ELF_PATH;
-    }else if(!strncmp(argv[3],"-t",2)){
+    }else if(!strncmp(argv[4],"-t",2)){
         SERVER_ELF_PATH=T_SERVER_ELF_PATH;
-        if(argv[3]+2) thread_n=argv[3]+2;
+        if(argv[4]+2) thread_n=argv[4]+2;
     }
     char* serverargv[]={SERVER_ELF_PATH,port,"BENCHMARK",thread_n,NULL};
-    char *clientargv[]={CLIENT_ELF_PATH,server_ipaddr,port,client_n,total_order,show_r,buy_r,sell_r,NULL};
+    char *clientargv[]={CLIENT_ELF_PATH,server_ipaddr,port,client_n,total_order,NULL,NULL};
 
     StartPhase("Server Booting");
     {   
@@ -80,20 +81,29 @@ int main(int argc,char** argv){
         print_execution_time(start);
     }
 
-    StartPhase("Client Connection Test");
+    StartPhase("Client Throughput Test : Random Mixed");
     {
         pid_client=fork_and_exec(clientargv);
         sigsuspend(&ss);
         print_execution_time(start);
     }
     
-    StartPhase("Client Query Test : show");
-    {
-        // ratio
-        // N
+    StartPhase("Client Throughput Test : show")
+    {   
+        serverargv[4]="show";
+        pid_client=fork_and_exec(clientargv);
+        sigsuspend(&ss);
+        print_execution_time(start);
     }
 
-    // StartPhase("Client Query Test : buy(sell)");
+    StartPhase("Client Throughput Test : modify")
+    {
+        serverargv[4]="modify";
+        pid_client=fork_and_exec(clientargv);
+        sigsuspend(&ss);
+        print_execution_time(start);
+    }
+    // StartPhase("Client Query Test : Modify");
 
     // StartPhase("Client Query Test : 50%% show 50%% buy(sell)");
 
