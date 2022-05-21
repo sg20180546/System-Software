@@ -42,7 +42,7 @@ STATUS modify(int id,int count){
         printf("NULL ERROR\n");
         return ERROR;
     } 
-    if((stock->count+count)<=0){
+    if((stock->count+count)<0){
         return NOTENOUGHERR;
     } 
     stock->count+=count;

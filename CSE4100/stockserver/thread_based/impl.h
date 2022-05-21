@@ -7,14 +7,14 @@
 #define INTINT 0x1
 
 
-extern struct command command_list[];
+extern struct connection connection_frame[];
 
 
-STATUS show(struct command* cmd);
+STATUS show(struct connection* cnct);
 
-STATUS sell(struct command* cmd);
+STATUS sell(struct connection* cnct);
 
-STATUS buy(struct command* cmd);
+STATUS buy(struct connection* cnct);
 
-STATUS exit_client(struct command* cmd);
+STATUS exit_client(struct connection* cnct);
 #endif

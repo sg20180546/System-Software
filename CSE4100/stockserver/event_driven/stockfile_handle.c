@@ -2,6 +2,7 @@
 
 // Transfrom on-disk file to in-memory binary tree
 void read_stockfile(){
+    gettimeofday(&last_fsync_time,NULL);
     char id[MAXLINE],price[MAXLINE],count[MAXLINE];
     int ID,COUNT,PRICE;
     fp=fopen(STOCK_FILE_PATH,"r+");
@@ -17,7 +18,7 @@ void read_stockfile(){
 
 // Transform in-memory binary tree to on-disk file
 void fsync_stockfile(){
-    t0=time(0);
+    gettimeofday(&last_fsync_time,NULL);
     char buf[MAXLINE]="";
     print_to_buf(_root,buf);
     
@@ -28,10 +29,9 @@ void fsync_stockfile(){
 }
 
 int time_check(){
-    t1=time(0);
-    double diff=difftime(t1,t0);
+    gettimeofday(&cur_time,NULL);
+    double diff=cur_time.tv_sec+cur_time.tv_usec-last_fsync_time.tv_sec-last_fsync_time.tv_usec;
     if(diff>MAX_FSYNC_TIME){
-        t0=time(0);
         return 1;
     }
     return -1;

@@ -1,15 +1,15 @@
 #include "network.h"
 
 
-static void free_args(struct command* cmd){
+static void free_args(struct connection* cnct){
     int i;
-    for(i=0;i<cmd->argc;i++){
-        free(cmd->args[i]);
+    for(i=0;i<cnct->argc;i++){
+        free(cnct->args[i]);
     }
-    free(cmd->args);
+    free(cnct->args);
 }
 
-static void execute(struct command cmd){
+static void execute(struct connection cmd){
     if(cmd.name==NULL) return;
 
     char res[MAXLINE]="\033[0m[";
@@ -31,14 +31,15 @@ void service(int connfd,char* hostname,char* port){
     rio_t rp;
     STATUS st;
     ssize_t rc;
-    struct command cmd;
-    cmd.connfd=connfd;
+    struct connection cnct;
+    cnct.clienthostname=hostname;
+    cnct.clientport=port;
+    cnct.connfd=connfd;
     rio_readinitb(&rp,connfd);
-    // thread_safe_printf("connfd :%d\n",connfd);
     while(1){ 
         if((rc=rio_readlineb(&rp,thread_safe_local_buf,MAXLINE))!=0){
-            thread_safe_printf("Server received %ld bytes\n",rc);
-            st=parser(thread_safe_local_buf,rc,&cmd);
+            thread_safe_printf("\033[0mServer received %ld bytes\n",rc);
+            st=parser(thread_safe_local_buf,rc,&cnct);
 
             switch (st)
             {
@@ -52,12 +53,12 @@ void service(int connfd,char* hostname,char* port){
                 Rio_writen(connfd,"Please Type Command\n");
                 break;
             default:
-                execute(cmd);
+                execute(cnct);
                 break;
             }
-            free_args(&cmd);
+            free_args(&cnct);
         }else{ 
-            socket_close(connfd);
+            socket_close(connfd,hostname,port);
             break;
         }
     }

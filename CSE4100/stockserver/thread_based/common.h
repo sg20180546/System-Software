@@ -12,10 +12,11 @@
 #include <stdarg.h>
 #include <signal.h>
 #include <assert.h>
+#include <sys/time.h>
 #define LISTENQ  1024
 #define RIO_BUFSIZE 8192
-#define NETWORK_WORKER_THREAD_N 8
-#define PENDING_CONNECTION_N 64
+#define PENDING_CONNECTION_N 4096
+#define NETWORK_WORKER_THREAD_N_DEFAULT 4
 #define MAXLINE 8192
 #define MAX_STOCK_N 100
 #define MAX_FSYNC_TIME 16
@@ -32,6 +33,9 @@
                     if(x) free(x); }
 #define whitespace(x) ( ( (x) ==SPACE) || ( (x) == TAB)  )
 
+#define ff(x) fprintf(stderr,"%s\n",x)
+
+
 typedef struct sockaddr SA;
 struct stock{
     int id;
@@ -45,17 +49,19 @@ typedef enum _STATUS{
     SUCCESS,ERROR,NOCMD,INVARG,NOTENOUGHERR,NL
 }STATUS;
 
-struct command{
+struct connection{
     int connfd;
+    char* clienthostname;
+    char* clientport;
     int flag;
     char name[10];
     char result[MAXLINE];
     char** args;
     int argc;
-    STATUS (*fp)(struct command*);
+    STATUS (*fp)(struct connection*);
 };
 
-
+struct timeval last_fsync_time,cur_time;
 FILE* fp;
 struct stock* _root;
 struct sockaddr_storage clientaddr;
@@ -63,6 +69,18 @@ socklen_t clientlen;
 int listenfd;
 int connfd;
 int i;
-pthread_t nework_worker_thread_tid[NETWORK_WORKER_THREAD_N];
+
+int NETWORK_WORKER_THREAD_N; 
+
+pthread_t* nework_worker_thread_tid;
+
+// Environment Variable
+#define ONLY_ONCE 0x0
+#define BENCHMARK 0x1
+#define PRODUCTION 0x2
+
+int mode;//default : PRODUCTION
+
+#define SIGSERVERBOOTED SIGUSR1
 
 #endif

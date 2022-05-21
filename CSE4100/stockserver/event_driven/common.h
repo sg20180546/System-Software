@@ -8,7 +8,7 @@
 #include <string.h>
 #include <netdb.h>
 #include <errno.h>
-#include <time.h>
+#include <sys/time.h>
 #include <sys/ioctl.h>
 #include <signal.h>
 #include <netinet/tcp.h>
@@ -21,6 +21,7 @@
 #define MAX_STOCK 16
 #define MAXLINE 8192
 #define STOCK_FILE_PATH "./stock.txt"
+                        
 #define RIO_BUFSIZE 8192
 #define COMMAND_N 4
 #define LISTENQ 1024
@@ -59,7 +60,15 @@ struct command{
 
 FILE* fp;
 struct stock* _root;
-clock_t time1;
-clock_t time2;
+struct timeval last_fsync_time,cur_time;
+// Environment Variable
+#define ONLY_ONCE 0x0
+#define BENCHMARK 0x1
+#define PRODUCTION 0x2
+
+int mode; //default : PRODUCTION
+
+#define SIGSERVERBOOTED SIGUSR1
+
 
 #endif

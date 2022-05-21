@@ -3,8 +3,7 @@
 #include "common.h"
 #include "binary_tree.h"
 #define SIGSYNC SIGUSR1
-time_t t0;
-time_t t1;
+
 int time_check();
 
 void read_stockfile();
