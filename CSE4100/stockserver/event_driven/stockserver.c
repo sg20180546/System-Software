@@ -25,7 +25,7 @@ int main(int argc,char** argv){
     while(1){
         see_pool();
         write_pool();
-        if(_pool.n==0||time_check()){
+        if(_pool.n==0){
             fsync_stockfile();
         }
 

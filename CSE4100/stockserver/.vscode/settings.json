@@ -16,6 +16,8 @@
         "network.h": "c",
         "stockfile_handle.h": "c",
         "common_test.h": "c",
-        "binary_tree.h": "c"
+        "binary_tree.h": "c",
+        "unistd.h": "c",
+        "stdlib.h": "c"
     }
 }

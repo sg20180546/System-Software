@@ -32,7 +32,8 @@ static void execute(struct command cmd){
         strcpy(res,"NOT ENOUGH LEFT STOCK\n");
     }
     strcat(res,cmd.result);
-    Rio_writen(cmd.connfd,res,MAXLINE);
+    // Rio_writen(cmd.connfd,res,MAXLINE);
+    send(cmd.connfd,res,MAXLINE,MSG_NOSIGNAL);
 }
 
 
@@ -83,11 +84,12 @@ void write_pool(void){
                 st=parser(buf,rc,&cmd);
 
                 if(st==NOCMD){
-                    Rio_writen(cmd.connfd,"No Such Command\n",MAXLINE);
+                    // send(cmd.connfd,)
+                    send(cmd.connfd,"No Such Command\n",MAXLINE,MSG_NOSIGNAL);
                 }else if(st==INVARG){
-                    Rio_writen(cmd.connfd,"Invalid Argument\n",MAXLINE);
+                    send(cmd.connfd,"Invalid Argument\n",MAXLINE,MSG_NOSIGNAL);
                 }else if(st==NL){
-                    Rio_writen(cmd.connfd,"Please Type Command\n",MAXLINE);
+                    send(cmd.connfd,"Please Type Command\n",MAXLINE,MSG_NOSIGNAL);
                 }else execute(cmd);
 
                 free_args(&cmd);
