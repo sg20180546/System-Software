@@ -11,10 +11,16 @@ struct stock* node;
 const char* phase;
 int id,count,price;
 
-
+inline static void print_execution_time(struct timeval s){
+    struct timeval e;
+    gettimeofday(&e,NULL);
+    double time_taken=e.tv_sec+e.tv_usec/1e6
+                        -start.tv_sec-start.tv_usec/1e6;
+    printf("\033[0;32mPASS\033[0m :: Execution Time :: %f sec.\n",time_taken);
+}
 
 int main(int argc,char** argv){
-    start=clock();
+    
     StartPhase("make _root node");
     {   
         id=53; count=44; price=3000;
@@ -30,6 +36,7 @@ int main(int argc,char** argv){
         CheckConditon(_root->id==id);
         CheckConditon(_root->count==count);
         CheckConditon(_root->price==price);
+        print_execution_time(start);
     }
 
     StartPhase("insert node id==78 at right,id==35 at left");
@@ -55,6 +62,7 @@ int main(int argc,char** argv){
         CheckConditon(_root->left->id==id);
         CheckConditon(_root->left->count==count)
         CheckConditon(_root->left->price==price)
+        print_execution_time(start);
     }
     StartPhase("insert 98 nodes randomly and find node");
     {
@@ -80,6 +88,7 @@ int main(int argc,char** argv){
             CheckConditon(info.count==node->count);
             CheckConditon(info.price==node->price);
         }
+        print_execution_time(start);
     }
     StartPhase("modify node");{
         int dx_arr[MAXNODE];
@@ -108,14 +117,14 @@ int main(int argc,char** argv){
                 CheckConditon(node->count==info_arr[node_count].count);
             }
         }
-
+        print_execution_time(start);
     }
     // StartPhase("print to buffer");
     // {
 
     // }
-    end=clock();
-    time_taken= (end-start)/CLOCKS_PER_SEC;
-    fprintf(stderr,"%s took %f seconds to execute\nPASS\n",argv[0]+2,time_taken);
+
+
+    // fprintf(stderr,"%s took %f seconds to execute\nPASS\n",argv[0]+2,time_taken);
     return 0;
 }

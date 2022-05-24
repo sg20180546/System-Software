@@ -13,8 +13,8 @@
 
 #define MAXNODE 100
 #define SIGENDCLOCK SIGUSR1
-#define CLIENT_ELF_PATH "../../client/multiclient_test"
-
+#define BENCHMARK_CLIENT_ELF_PATH "../../client/multiclient_benchmark"
+#define CLIENT_ELF_PATH "../../client/multiclient"
 #define E_SERVER_PATH "../../event_driven"
 #define T_SERVER_PATH "../../thread_based"
 
@@ -22,7 +22,7 @@
 #define E_SERVER_ELF_PATH "../../event_driven/stockserver"
 #define T_SERVER_ELF_PATH "../../thread_based/stockserver"
 const char* phase;
-struct timeval start;
+struct timeval start,end;
 double time_taken;
 
 pid_t pid_server,pid_client;
@@ -40,6 +40,7 @@ pid_t pid_server,pid_client;
     gettimeofday(&start,NULL); \
     phase=name;
 
+        
 
 
 #endif
