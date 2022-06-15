@@ -10,19 +10,19 @@
 
 ## 2. Concurrent stockserver project : Make Conccurent two type of Concurrent server, one is EVENT_DRIVEN, the other is THREAD_BASED.
 * 1) EVENT_DRIVEN
-    - EVENT_DRIVEN server run sequntially at ONE PROCESS.
-    - select(), epoll() function is key function, which request KERNEL to check CONNECTION camed.
+        - EVENT_DRIVEN server run sequntially at ONE PROCESS.
+        - select(), epoll() function is key function, which request KERNEL to check CONNECTION camed.
 * 2) THREAD_BASED
-    - THREAD_BASED server consist of ONE MAIN thread and N WORKER threads.
-    - MAIN thread push CONNECTION FILE DESCRIPTOR at SBUF, which use mutex to prevent concurrency bugs.
-    - N WORKER threads gain CONNETION FD from SBUF, and then do network communcation.
-    - as This server use binary tree in heap, to prevent reader-writer problem, There are both lock of each node, and that of whole binary tree
+        - THREAD_BASED server consist of ONE MAIN thread and N WORKER threads.
+        - MAIN thread push CONNECTION FILE DESCRIPTOR at SBUF, which use mutex to prevent concurrency bugs.
+        - N WORKER threads gain CONNETION FD from SBUF, and then do network communcation.
+        - as This server use binary tree in heap, to prevent reader-writer problem, There are both lock of each node, and that of whole binary tree
 * 3) Benchmarking
-    - you can test server throughput by /test/common_test/benchmark.c
-    - to test, compile /client/multiclient_behchmark.c (just run make !)
+        - you can test server throughput by /test/common_test/benchmark.c
+        - to test, compile /client/multiclient_behchmark.c (just run make !)
 * 4) Common
-    - stock file format is "{ID} {COUNT} {PRICE}\n", saved at same path of server process.
-    - when server boot, stock file is loaded on memory as shape as binary tree structure.
+        - stock file format is "{ID} {COUNT} {PRICE}\n", saved at same path of server process.
+        - when server boot, stock file is loaded on memory as shape as binary tree structure.
 
 ## 3. CSE3030, CSE4040 is class material of Sogang University Computer Sci. Course.
 - CSE3030(Introduction of Computer System)
