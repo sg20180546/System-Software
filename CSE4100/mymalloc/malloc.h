@@ -1,7 +1,7 @@
 #define MAX_ORDER 10
 #define BLOCK_SIZE 8;
 unsigned long bitmap[MAX_ORDER];
-
+#define DECLARE_STRUCT_TYPE(g_object) typdef struct name##_s name##_t
 struct node{
     void* pointer;
     struct node* next;

@@ -50,7 +50,9 @@ struct free_area free_area[MAX_ORDER];
 
 int mm_init(void)
 {   
+    // [ ALL FREE MALLOC DATA AREA ] | [free_area map](fixed) map : 64bit | LINKED LIST
     //init all free area
+    // metadata()
     return 0;
 }
 
