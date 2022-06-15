@@ -1,0 +1,16 @@
+1.static linking
+cpp : main.c -> main.i, exchange macro variable
+cc1 : main.i -> main.s , main.i to assembly langueage
+as : main.s->main.o , assmebly language file to binary relocatable object file
+ld : relocatable object file to executable object file
+
+2.why linker
+modularity : mircrolitc, not monolithic
+efficiency : compile only one source, relink , space efficeincy?
+
+3. how linker
+- symbol resolution : symbol reference to one symbol definition
+- relocation : each .o files symbol entry to one single section 
+
+
+4.relocation entry

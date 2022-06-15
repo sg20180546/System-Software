@@ -32,6 +32,7 @@ char setBit ( int64 *a, char bit, int i){
     }
 }
 
+//TODO : Comeplete add64 function.
 int64 add64 ( int64 x, int64 y){
 
     
@@ -44,39 +45,31 @@ int64 add64 ( int64 x, int64 y){
     char a_bit_i;
     char b_bit_i;
 
-    char sign_a=getBit(y,63);
-    char sign_b=getBit(x,63);
+    char sign_a = getBit ( x, 63 );
+    char sign_b = getBit ( y, 63 );
 
-    int i;
+   
     // do add
-    for (i=0;i<64; i++){
+    for (int i=0;i<64; i++){
         // get bit
         a_bit_i = getBit ( x, i );
         b_bit_i = getBit ( y, i );
-        carry_bit_out=((a_bit_i^b_bit_i)&carry_bit_in)|(a_bit_i&b_bit_i);
-        sum_bit=(a_bit_i^b_bit_i)^carry_bit_in;
-        // please use only bit operations.
-        // compute a sum bit and a carry bit at index i
-	// It looks like the following format:
-        // carry_bit_out = ;
-	    // sum_bit = ;
 
-	// TODO
+        //please use only bit operations.
+        // compute a sum bit at index i
+	carry_bit_out = ( carry_bit_in & (a_bit_i ^ b_bit_i) ) | ( a_bit_i & b_bit_i ) ;
+	sum_bit = (a_bit_i ^ b_bit_i ) ^ carry_bit_in ;
 
         // set the sum bit at index i of result. 
         setBit ( &result, sum_bit, i );       
 
 	carry_bit_in = carry_bit_out;
     }
-    char sign_c=getBit(result,63);
 
-    if(sign_a&sign_b&!sign_c) g_overflow=1;
-    else if(!sign_a&!sign_b&sign_c) g_overflow=1;
-    // checking overflow
-    // Overflow occurs when the result cannot be represented in a given format.
-    // Hint: you need to check each sign of A, B and result. 
+    char sign_c = getBit ( result, 63 );
 
-    // TODO
+    if ( (sign_a & sign_b & (!sign_c)) || ((!sign_a) & (!sign_b) & sign_c )  )
+        g_overflow = 1;
 
     return result;
 }
@@ -95,20 +88,21 @@ if ( getBit(x, i))
     printf("\n");
 }
 
-//TODO : Comeplete complementation
+//TODO : Comeplete Complementation
 int64 complement64 (int64 x){
 
     int64 result;
     result.hp = 0;
     result.lp = 0;
 
+    result.hp = ~x.hp;
+    result.lp = ~x.lp;
+
     int64 one;
     one.hp=0;
     one.lp=1;
+    result = add64 ( result,  one );
 
-    x.hp=~x.hp;
-    x.lp=~x.lp;
-    result=add64(one,x);
     return result;
 }
 //TODO : Comeplete sub64 function.
@@ -116,8 +110,10 @@ int64 sub64 ( int64 x, int64 y){
 
     int64 result;
     int64 complement_y;
-    complement_y=complement64(y);
-    result=add64(x,complement_y);
+
+    complement_y = complement64 ( y );
+    result  = add64 ( x, complement_y );
+
     return result;
 }
 
@@ -145,7 +141,7 @@ void main()
     printf("B:\t");
         printBinaryRepresentation(op2);
 
-    // addition
+    //addition
     g_overflow =0;
     res = add64(op1, op2);
     printf("ADD64:\t");
@@ -154,7 +150,7 @@ void main()
     else
         printBinaryRepresentation(res);
 
-   // complement
+   //complement
     g_overflow =0;
     res = complement64 ( op2 );
     printf("COMP64:\t");
@@ -162,13 +158,13 @@ void main()
         printf("overflow!\n");
     else  printBinaryRepresentation ( res );
     
-    // subtraction
+    //subtraction
     g_overflow =0;
     res = sub64 ( op1, op2 );
     printf("SUB64:\t");
-    //   if (g_overflow)
-        // printf("overflow!\n");
-    // else
+      if (g_overflow)
+        printf("overflow!\n");
+    else
         printBinaryRepresentation(res);
 }
 

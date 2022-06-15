@@ -1,0 +1,52 @@
+
+1.2
+memory_read
+t_place+t_read+t_place+t_read+t_read+t_reg
+
+t_place+t_read+ t_place+t_read + t_mem
+
+
+1.3
+1)
+8*2*4096000000
+4096*16*000000
+2^16*10^6 byte
+=64KB*100000
+2)
+1600/4=400
+5ms+1/3600*60*0.5*1000+1/400*60/3600*1000
+=5 +500/60+1000/24000
+
+1.4
+2) ijkl
+
+2.1
+2)
+VP0
+VP2
+VP3
+VP3
+PP2
+PP1
+PP3
+PP0
+
+PP0 VP7
+PP1 VP5
+PP2 VP4
+PP3 VP6
+
+0 PP2 -> in disk
+1 PP0 -> in disk
+2 in disk -> PP0 -> in disk
+3 PP1-> in disk
+4 NULL->PP2
+5 NULL->PP1
+6 PP3
+7 in disk ->PP0
+
+
+VP1->VP2->VP7
+VP3->VP5
+VP0->VP4
+VP6
