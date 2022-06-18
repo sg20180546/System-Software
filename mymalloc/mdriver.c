@@ -135,6 +135,7 @@ static void app_error(char *msg);
 /**************
  * Main routine
  **************/
+#ifdef PRODUCTION
 int main(int argc, char **argv)
 {
     int i;
@@ -357,7 +358,7 @@ int main(int argc, char **argv)
 
     exit(0);
 }
-
+#endif
 
 /*****************************************************************
  * The following routines manipulate the range list, which keeps 
