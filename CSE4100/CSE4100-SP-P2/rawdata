@@ -1,0 +1,680 @@
+4.성능 평가 결과 (Task 3)
+
+강의자료 슬라이드의 내용 참고하여 작성 (측정 시점, 출력 결과 값 캡처 포함)
+
+
+Benchmark environment
+
+https://app.chartblocks.com/chart/create/set
+
+OS : 64 bit Linux ,5.13.0-4 인텔® 코어™ i5-1035G4 1.10Ghz 프로세서, 16GB Memory
+
+/benchmark 1024 8 1024 -e 
+
+1. x=thread_n y=execution time
+
+total query = 2^22(4194304) , client_n=64
+
+
+
+
+Thread n : -t256 port : 1280
+=== Test Server Booting
+Server running on 1280
+Execution Time :: 0.006492 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 201.950880 sec.
+Throughput(Query per Sec) :: 20768.931531 
+=== Test Client Throughput Test : show
+Execution Time :: 206.379994 sec.
+Throughput(Query per Sec) :: 20323.210208 
+=== Test Client Throughput Test : modify
+Execution Time :: 206.763735 sec.
+Throughput(Query per Sec) :: 20285.491547 
+
+
+Thread n : -t128 port : 1152
+=== Test Server Booting
+Server running on 1152
+Execution Time :: 0.004477 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 193.151940 sec.
+Throughput(Query per Sec) :: 21715.049820 
+=== Test Client Throughput Test : show
+Execution Time :: 201.224354 sec.
+Throughput(Query per Sec) :: 20843.918326 
+=== Test Client Throughput Test : modify
+Execution Time :: 191.581437 sec.
+Throughput(Query per Sec) :: 21893.060550 
+
+
+Thread n : -t64 port : 1088
+=== Test Server Booting
+Server running on 1088
+Execution Time :: 0.002469 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 192.893447 sec.
+Throughput(Query per Sec) :: 21744.149757 
+=== Test Client Throughput Test : show
+Execution Time :: 183.306437 sec.
+Throughput(Query per Sec) :: 22881.378673 
+=== Test Client Throughput Test : modify
+Execution Time :: 190.993157 sec.
+Throughput(Query per Sec) :: 21960.493586 
+
+
+Thread n : -t32 port : 1056
+=== Test Server Booting
+Server running on 1056
+Execution Time :: 0.001818 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 76.472444 sec.
+Throughput(Query per Sec) :: 54847.259732 
+=== Test Client Throughput Test : show
+Execution Time :: 78.715622 sec.
+Throughput(Query per Sec) :: 53284.264250 
+=== Test Client Throughput Test : modify
+Execution Time :: 77.232568 sec.
+Throughput(Query per Sec) :: 54307.452215 
+
+
+Thread n : -t16 port : 1040
+=== Test Server Booting
+Server running on 1040
+Execution Time :: 0.001284 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 66.757216 sec.
+Throughput(Query per Sec) :: 62829.222749 
+=== Test Client Throughput Test : show
+Execution Time :: 66.918648 sec.
+Throughput(Query per Sec) :: 62677.656097 
+=== Test Client Throughput Test : modify
+Execution Time :: 65.019587 sec.
+Throughput(Query per Sec) :: 64508.315009 
+
+
+Thread n : -t8 port : 1032
+=== Test Server Booting
+Server running on 1032
+Execution Time :: 0.000965 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 44.227944 sec.
+Throughput(Query per Sec) :: 94833.800010 
+=== Test Client Throughput Test : show
+Execution Time :: 47.783246 sec.
+Throughput(Query per Sec) :: 87777.712081 
+=== Test Client Throughput Test : modify
+Execution Time :: 49.270071 sec.
+Throughput(Query per Sec) :: 85128.840229 
+
+
+Thread n : -t4 port : 1028
+=== Test Server Booting
+Server running on 1028
+Execution Time :: 0.000877 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 51.597480 sec.
+Throughput(Query per Sec) :: 81288.931000 
+=== Test Client Throughput Test : show
+Execution Time :: 53.781774 sec.
+Throughput(Query per Sec) :: 77987.460951 
+=== Test Client Throughput Test : modify
+Execution Time :: 53.979804 sec.
+Throughput(Query per Sec) :: 77701.356474 
+
+
+Thread n : -t2 port : 1026
+=== Test Server Booting
+Server running on 1026
+Execution Time :: 0.000990 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 71.646906 sec.
+Throughput(Query per Sec) :: 58541.313754 
+=== Test Client Throughput Test : show
+Execution Time :: 70.977925 sec.
+Throughput(Query per Sec) :: 59093.077216 
+=== Test Client Throughput Test : modify
+Execution Time :: 70.905531 sec.
+Throughput(Query per Sec) :: 59153.410690 
+
+
+Thread n : -t1 port : 1025
+=== Test Server Booting
+Server running on 1025
+Execution Time :: 0.000817 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 120.487041 sec.
+Throughput(Query per Sec) :: 34811.245801 
+=== Test Client Throughput Test : show
+Execution Time :: 120.324012 sec.
+Throughput(Query per Sec) :: 34858.412146 
+=== Test Client Throughput Test : modify
+Execution Time :: 120.617561 sec.
+Throughput(Query per Sec) :: 34773.576624 
+
+
+
+
+
+-> -t8일때 가장 throughput이 peak인 것을 확인할 수 있는데 , 이는 benchmark envirnoment의 하이퍼쓰레딩에 의해 CPU갯수가 8개이기 때문이다.
+
+
+
+
+
+
+
+2. x=client number y=execution time 
+
+
+
+1)thread_based
+
+thread_n=32 , total query= 2^20
+
+
+
+client_n : 512 port : 1792
+=== Test Server Booting
+Server running on 1792
+Execution Time :: 0.000863 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 51.729243 sec.
+Throughput(Query per Sec) :: 81081.874636 
+=== Test Client Throughput Test : show
+Execution Time :: 50.727159 sec.
+Throughput(Query per Sec) :: 82683.597673 
+=== Test Client Throughput Test : modify
+Execution Time :: 49.946250 sec.
+Throughput(Query per Sec) :: 83976.354440 
+
+
+client_n : 256 port : 1536
+=== Test Server Booting
+Server running on 1536
+Execution Time :: 0.000868 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 48.937038 sec.
+Throughput(Query per Sec) :: 85708.170682 
+=== Test Client Throughput Test : show
+Execution Time :: 48.928317 sec.
+Throughput(Query per Sec) :: 85723.447061 
+=== Test Client Throughput Test : modify
+Execution Time :: 49.406457 sec.
+Throughput(Query per Sec) :: 84893.842935 
+
+
+client_n : 128 port : 1408
+=== Test Server Booting
+Server running on 1408
+Execution Time :: 0.000884 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 46.790705 sec.
+Throughput(Query per Sec) :: 89639.683557 
+=== Test Client Throughput Test : show
+Execution Time :: 47.491183 sec.
+Throughput(Query per Sec) :: 88317.530495 
+=== Test Client Throughput Test : modify
+Execution Time :: 49.026669 sec.
+Throughput(Query per Sec) :: 85551.478137 
+
+
+client_n : 64 port : 1344
+=== Test Server Booting
+Server running on 1344
+Execution Time :: 0.000918 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 49.316609 sec.
+Throughput(Query per Sec) :: 85048.507520 
+=== Test Client Throughput Test : show
+Execution Time :: 49.188379 sec.
+Throughput(Query per Sec) :: 85270.221887 
+=== Test Client Throughput Test : modify
+Execution Time :: 48.207978 sec.
+Throughput(Query per Sec) :: 87004.354394 
+
+
+client_n : 32 port : 1312
+=== Test Server Booting
+Server running on 1312
+Execution Time :: 0.000927 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 49.055672 sec.
+Throughput(Query per Sec) :: 85500.897830 
+=== Test Client Throughput Test : show
+Execution Time :: 45.922556 sec.
+Throughput(Query per Sec) :: 91334.289127 
+=== Test Client Throughput Test : modify
+Execution Time :: 48.617006 sec.
+Throughput(Query per Sec) :: 86272.363320 
+
+
+client_n : 16 port : 1296
+=== Test Server Booting
+Server running on 1296
+Execution Time :: 0.001056 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 49.247991 sec.
+Throughput(Query per Sec) :: 85167.007046 
+=== Test Client Throughput Test : show
+Execution Time :: 46.669287 sec.
+Throughput(Query per Sec) :: 89872.896553 
+=== Test Client Throughput Test : modify
+Execution Time :: 46.624426 sec.
+Throughput(Query per Sec) :: 89959.370139 
+
+
+client_n : 8 port : 1288
+=== Test Server Booting
+Server running on 1288
+Execution Time :: 0.000869 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 48.538680 sec.
+Throughput(Query per Sec) :: 86411.579257 
+=== Test Client Throughput Test : show
+Execution Time :: 47.088936 sec.
+Throughput(Query per Sec) :: 89071.963521 
+=== Test Client Throughput Test : modify
+Execution Time :: 49.127654 sec.
+Throughput(Query per Sec) :: 85375.621466 
+
+
+client_n : 4 port : 1284
+=== Test Server Booting
+Server running on 1284
+Execution Time :: 0.001000 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 49.336104 sec.
+Throughput(Query per Sec) :: 85014.900864 
+=== Test Client Throughput Test : show
+Execution Time :: 49.577047 sec.
+Throughput(Query per Sec) :: 84601.730990 
+=== Test Client Throughput Test : modify
+Execution Time :: 45.732681 sec.
+Throughput(Query per Sec) :: 91713.494815 
+
+
+client_n : 2 port : 1282
+=== Test Server Booting
+Server running on 1282
+Execution Time :: 0.000886 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 68.285452 sec.
+Throughput(Query per Sec) :: 61423.097945 
+=== Test Client Throughput Test : show
+Execution Time :: 68.884870 sec.
+Throughput(Query per Sec) :: 60888.610273 
+=== Test Client Throughput Test : modify
+Execution Time :: 69.043526 sec.
+Throughput(Query per Sec) :: 60748.693562 
+
+
+client_n : 1 port : 1281
+=== Test Server Booting
+Server running on 1281
+Execution Time :: 0.000871 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 116.295965 sec.
+Throughput(Query per Sec) :: 36065.774083 
+=== Test Client Throughput Test : show
+Execution Time :: 116.830333 sec.
+Throughput(Query per Sec) :: 35900.813569 
+=== Test Client Throughput Test : modify
+Execution Time :: 117.292928 sec.
+Throughput(Query per Sec) :: 35759.223248 
+
+
+
+->thread based server의 경우 client의 갯수가 256~8개일때까지 큰 성능차이가 없음을 확인할 수 있다. 왜냐하면 최대 쓰레드가 동시에 8개까지만 돌아갈 수 있음으로 1번 실험과 같은 이유라고 추측한다.
+
+
+
+
+
+1)event_driven
+
+client_n : 512 port : 1792
+=== Test Server Booting
+Server running on 1792
+Execution Time :: 0.000726 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 105.533564 sec.
+Throughput(Query per Sec) :: 39743.791886 
+=== Test Client Throughput Test : show
+Execution Time :: 110.630496 sec.
+Throughput(Query per Sec) :: 37912.728883 
+=== Test Client Throughput Test : modify
+Execution Time :: 122.971194 sec.
+Throughput(Query per Sec) :: 34108.020452 
+
+
+client_n : 256 port : 1536
+=== Test Server Booting
+Server running on 1536
+Execution Time :: 0.000754 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 178.727232 sec.
+Throughput(Query per Sec) :: 23467.626915 
+=== Test Client Throughput Test : show
+Execution Time :: 158.391472 sec.
+Throughput(Query per Sec) :: 26480.617589 
+=== Test Client Throughput Test : modify
+Execution Time :: 173.089013 sec.
+Throughput(Query per Sec) :: 24232.063761 
+
+
+client_n : 128 port : 1408
+=== Test Server Booting
+Server running on 1408
+Execution Time :: 0.000722 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 247.102178 sec.
+Throughput(Query per Sec) :: 16973.966134 
+=== Test Client Throughput Test : show
+Execution Time :: 267.651984 sec.
+Throughput(Query per Sec) :: 15670.737567 
+=== Test Client Throughput Test : modify
+Execution Time :: 241.143664 sec.
+Throughput(Query per Sec) :: 17393.382553 
+
+
+client_n : 64 port : 1344
+=== Test Server Booting
+Server running on 1344
+Execution Time :: 0.000698 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 432.023142 sec.
+Throughput(Query per Sec) :: 9708.516955 
+=== Test Client Throughput Test : show
+Execution Time :: 429.150819 sec.
+Throughput(Query per Sec) :: 9773.496438 
+=== Test Client Throughput Test : modify
+Execution Time :: 446.686199 sec.
+Throughput(Query per Sec) :: 9389.822230 
+
+
+client_n : 32 port : 1312
+=== Test Server Booting
+Server running on 1312
+Execution Time :: 0.000677 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 827.081377 sec.
+Throughput(Query per Sec) :: 5071.210786 
+=== Test Client Throughput Test : show
+Execution Time :: 839.147162 sec.
+Throughput(Query per Sec) :: 4998.293732 
+=== Test Client Throughput Test : modify
+Execution Time :: 845.624902 sec.
+Throughput(Query per Sec) :: 4960.005305 
+
+
+client_n : 16 port : 1296
+=== Test Server Booting
+Server running on 1296
+Execution Time :: 0.000705 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 2212.511588 sec.
+Throughput(Query per Sec) :: 1895.720693 
+=== Test Client Throughput Test : show
+Execution Time :: 2199.413991 sec.
+Throughput(Query per Sec) :: 1907.009784 
+=== Test Client Throughput Test : modify
+Execution Time :: 2198.995704 sec.
+Throughput(Query per Sec) :: 1907.372530 
+
+
+
+client_n : 8 port : 1288
+=== Test Server Booting
+Server running on 1288
+Execution Time :: 0.000725 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 7941.218915 sec.
+Throughput(Query per Sec) :: 528.168792 
+=== Test Client Throughput Test : show
+
+
+
+->event driven server의 경우 client_n 이 감소할수록 급격하게 성능이 나빠지는 것을 볼 수 있다. 왜냐하면 한번의 select 루프에 처리할 수 있는 쿼리의 갯수가 작아지기때문에, client n이 감소할수록 select의 오버헤드가 급격히 증가하기 때문이다.
+
+
+
+
+
+3. thread vs event
+
+::Total Query : 1024::
+
+::Thread_based(t=32) port : 1024
+=== Test Server Booting
+Execution Time :: 0.001366 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 0.019210 sec.
+Throughput(Query per Sec) :: 53305.564215 
+=== Test Client Throughput Test : show
+Execution Time :: 0.032164 sec.
+Throughput(Query per Sec) :: 31836.737105 
+=== Test Client Throughput Test : modify
+Execution Time :: 0.024035 sec.
+Throughput(Query per Sec) :: 42604.396271 
+
+::Event_driven : -t32 port : 4096
+
+
+
+=== Test Server Booting
+Server running on 4096
+Execution Time :: 0.000867 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 0.176226 sec.
+Throughput(Query per Sec) :: 5810.720660 
+=== Test Client Throughput Test : show
+Execution Time :: 0.178609 sec.
+Throughput(Query per Sec) :: 5733.196146 
+=== Test Client Throughput Test : modify
+Execution Time :: 0.260770 sec.
+Throughput(Query per Sec) :: 3926.832744 
+::Total Query : 4096::
+
+::Thread_based(t=32) port : 1025
+=== Test Server Booting
+Server running on 1025
+Execution Time :: 0.001416 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 0.034504 sec.
+Throughput(Query per Sec) :: 118710.815829 
+=== Test Client Throughput Test : show
+Execution Time :: 0.039201 sec.
+Throughput(Query per Sec) :: 104487.254437 
+=== Test Client Throughput Test : modify
+Execution Time :: 0.041573 sec.
+Throughput(Query per Sec) :: 98525.557399 
+
+::Event_driven : -t32 port : 4097
+
+
+
+=== Test Server Booting
+Server running on 4097
+Execution Time :: 0.001106 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 0.359244 sec.
+Throughput(Query per Sec) :: 11401.720887 
+=== Test Client Throughput Test : show
+Execution Time :: 0.369128 sec.
+Throughput(Query per Sec) :: 11096.424443 
+=== Test Client Throughput Test : modify
+Execution Time :: 0.374573 sec.
+Throughput(Query per Sec) :: 10935.120444 
+::Total Query : 16384::
+
+::Thread_based(t=32) port : 1026
+=== Test Server Booting
+Server running on 1026
+Execution Time :: 0.001455 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 0.136468 sec.
+Throughput(Query per Sec) :: 120057.389334 
+=== Test Client Throughput Test : show
+Execution Time :: 0.159680 sec.
+Throughput(Query per Sec) :: 102605.143023 
+=== Test Client Throughput Test : modify
+Execution Time :: 0.427733 sec.
+Throughput(Query per Sec) :: 38304.259358 
+
+::Event_driven : -t32 port : 4098
+
+
+
+=== Test Server Booting
+Server running on 4098
+Execution Time :: 0.000737 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 1.136941 sec.
+Throughput(Query per Sec) :: 14410.597829 
+=== Test Client Throughput Test : show
+Execution Time :: 1.096409 sec.
+Throughput(Query per Sec) :: 14943.329011 
+=== Test Client Throughput Test : modify
+Execution Time :: 1.102765 sec.
+Throughput(Query per Sec) :: 14857.200251 
+::Total Query : 65536::
+
+::Thread_based(t=32) port : 1027
+=== Test Server Booting
+Server running on 1027
+Execution Time :: 0.001491 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 1.309049 sec.
+Throughput(Query per Sec) :: 50063.822222 
+=== Test Client Throughput Test : show
+Execution Time :: 1.650290 sec.
+Throughput(Query per Sec) :: 39711.806015 
+=== Test Client Throughput Test : modify
+Execution Time :: 1.125751 sec.
+Throughput(Query per Sec) :: 58215.359252 
+
+::Event_driven : -t32 port : 4099
+
+
+
+=== Test Server Booting
+Server running on 4099
+Execution Time :: 0.000859 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 4.018783 sec.
+Throughput(Query per Sec) :: 16307.424034 
+=== Test Client Throughput Test : show
+Execution Time :: 4.075410 sec.
+Throughput(Query per Sec) :: 16080.835711 
+=== Test Client Throughput Test : modify
+Execution Time :: 4.007298 sec.
+Throughput(Query per Sec) :: 16354.161896 
+::Total Query : 262144::
+
+::Thread_based(t=32) port : 1028
+=== Test Server Booting
+Server running on 1028
+Execution Time :: 0.001544 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 4.859851 sec.
+Throughput(Query per Sec) :: 53940.747214 
+=== Test Client Throughput Test : show
+Execution Time :: 4.922726 sec.
+Throughput(Query per Sec) :: 53251.796534 
+=== Test Client Throughput Test : modify
+Execution Time :: 4.813382 sec.
+Throughput(Query per Sec) :: 54461.498751 
+
+::Event_driven : -t32 port : 4100
+
+
+
+=== Test Server Booting
+Server running on 4100
+Execution Time :: 0.000839 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 14.864770 sec.
+Throughput(Query per Sec) :: 17635.254410 
+=== Test Client Throughput Test : show
+Execution Time :: 15.139361 sec.
+Throughput(Query per Sec) :: 17315.393876 
+=== Test Client Throughput Test : modify
+Execution Time :: 15.216939 sec.
+Throughput(Query per Sec) :: 17227.117709 
+::Total Query : 1048576::
+
+::Thread_based(t=32) port : 1029
+=== Test Server Booting
+Server running on 1029
+Execution Time :: 0.001522 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 19.058894 sec.
+Throughput(Query per Sec) :: 55017.673396 
+=== Test Client Throughput Test : show
+Execution Time :: 18.729730 sec.
+Throughput(Query per Sec) :: 55984.576511 
+=== Test Client Throughput Test : modify
+Execution Time :: 19.446328 sec.
+Throughput(Query per Sec) :: 53921.542689 
+
+::Event_driven : -t32 port : 4101
+
+
+
+=== Test Server Booting
+Server running on 4101
+Execution Time :: 0.000779 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 60.226560 sec.
+Throughput(Query per Sec) :: 17410.524492 
+=== Test Client Throughput Test : show
+Execution Time :: 100.484538 sec.
+Throughput(Query per Sec) :: 10435.197505 
+=== Test Client Throughput Test : modify
+Execution Time :: 114.352097 sec.
+Throughput(Query per Sec) :: 9169.713781 
+::Total Query : 4194304::
+
+::Thread_based(t=32) port : 1030
+=== Test Server Booting
+Server running on 1030
+Execution Time :: 0.001444 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 70.073518 sec.
+Throughput(Query per Sec) :: 59855.764624 
+=== Test Client Throughput Test : show
+Execution Time :: 67.463786 sec.
+Throughput(Query per Sec) :: 62171.192071 
+=== Test Client Throughput Test : modify
+Execution Time :: 67.724822 sec.
+Throughput(Query per Sec) :: 61931.561901 
+
+::Event_driven : -t32 port : 4102
+
+
+
+=== Test Server Booting
+Server running on 4102
+Execution Time :: 0.000816 sec.
+=== Test Client Throughput Test : Random Mixed
+Execution Time :: 345.079012 sec.
+Throughput(Query per Sec) :: 12154.619242 
+=== Test Client Throughput Test : show
+Execution Time :: 405.099689 sec.
+Throughput(Query per Sec) :: 10353.757639 
+=== Test Client Throughput Test : modify
+Execution Time :: 421.094780 sec.
+Throughput(Query per Sec) :: 9960.474930 
+
+
+
+-> event based server의 경우 생성해야할 쓰레드가 없기 때문에 부팅속도는 thread based server보다 빠르다
+
+-> 그러나 전체적인 Thoughput은 많게는 12배, 최소 3배 이상 thread_Based server가 높은것을 확인할 수 있다.
+
+
+
+4.query type
+
+

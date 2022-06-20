@@ -1,0 +1,144 @@
+1.1
+a)Code Motion
+ni=n*i
+
+b)Strength Reduction
+multiply -> add
+
+c)Sharing of common subexpression
+a[n*i+j] + a[n*i+j-1]
+-> a[ni+j] +a[ni+j-1]
+
+d) Remove Aliasing
+rather than memory access every loop, Operate all value in register
+after loop, one memory access and save register value to memory
+e) function inlining
+inline function : parameter constructing / jump / push pop stack -> overhead reduced
+
+f) Loop Unrolling
+
+2
+2.1
+-4(%rbp)=i, -20(%rbp)=N, -8(%rbp)=rlt
+1)
+	movl $1, -4(%rbp) // -4(%rbp) == i =1
+	jmp .L2
+.L3:
+	movl -4(%rbp), %eax // %rax = i
+	addl %eax, -8(%rbp) // rlt =+i
+	addl $1, -4(%rbp) // i+=1
+.L2:
+	movl -20(%rbp), %eax // %rax = N
+	cmpl -4(%rbp), %eax // i , N 
+	jge .L3 // if (N>=i) jump L3 
+a) N=1 , 2+ 3*2+ 3*1=11
+b) N=3 , 2+ 3+3+3+3 + 3+3+3= 2* 3*4+3*3=23
+c) I= 2+3*(2N+1)=5+6N
+
+2)
+O(N^3)
+for(i=1;i<N+1;i++) {
+	for(j=0;j<N+1-i;j++) {
+		rlt = 0;
+		for(k=0;k<i;k++) {
+			rlt += arr[j+k];
+		}
+		//printf("%d\n", rlt);
+	}
+}
+-28(%rbp)=N, -4(%rbp)=i, -8(%rbp)=j , -12(%rbp)=k , -16(%rbp)=rlt, -24(%rbp) = arr
+
+movl $1, -4(%rbp)
+jmp .L2
+.L7:
+	movl $0, -8(%rbp) //j=0
+	jmp .L3
+.L6:
+	movl $0, -16(%rbp) // rlt=0
+	movl $0, -12(%rbp) // k=0
+	jmp .L4
+.L5:
+	movl -8(%rbp), %edx // edx=j
+	movl -12(%rbp), %eax // eax=k 
+	addl %edx, %eax //eax=j+k
+	cltq // %eax : sign extended : %rax
+	leaq 0(,%rax,4), %rdx // %rdx=4*(j+k)
+	movq -24(%rbp), %rax // %rax=arr
+	addq %rdx, %rax // %rax= arr+4*(j+k)
+	movl (%rax), %eax //%%rax=*(arr+4*(j+k))
+	addl %eax, -16(%rbp) // rlt+= arr[j+k]
+	addl $1, -12(%rbp) // k++
+.L4:
+	movl -12(%rbp), %eax // %eax=k
+	cmpl -4(%rbp), %eax // i,k
+	jl .L5 // if(k<i) jump L5 
+	addl $1, -8(%rbp) // else j++ 
+.L3:
+	movl -28(%rbp), %eax // eax= N
+	addl $1, %eax eax=N+1
+	subl -4(%rbp), %eax //eax= N+1-i
+	cmpl %eax, -8(%rbp) // N+1-i,j
+	jl .L6 //if(j<N+1-i) jump L6
+	addl $1, -4(%rbp) // i++
+.L2:
+	movl -28(%rbp), %eax // eax= N
+	cmpl -4(%rbp), %eax // i,N
+	jge .L7 // if(N>=i) jump L7
+	
+a) N=1, 2+
+.L2: 3 + 3
+.L7: 2
+.L3: 5 + 6
+.L6: 3
+.L4: 3 + 4
+.L5: 10
+= 39
+b) N=3, 2+
+.L2: 3 + 3 + 3 + 3
+.L7: 2 + 2 + 2
+
+.L3: 5 + 5 + 5 + 6
+.L6: 3 + 3 + 3
+
+.L4: 3 + 4 + 3 + 3 + 4
+.L5: 10 + 10 + 10 
+(3*(1) +2*(1+2) +1*(1+2+3))
+(2*(1+2)+1*(1+2+3))
+(1*(1+2+3))
+
+O(N^2)
+
+2.2
+a) 36(integer divde) vs 5(floating point mul)
+b) 38(floting point divide) vs 4(integer multiply)
+c) (float divde)+(float +mult) vs (int mul) + (int divide)
+latter is more efficient
+
+
+2.3)
+1.Code motion , Removing Aliasing
+for (i=0;i<100;i++) {
+	int val=0;
+	int ii100=i*i*100;
+	for (j=0;j<100;j++)
+		val+=5*j;
+	arr[i] += val+ii100;
+} 
+2. Use Function inlining
+int max(int a, int b) {
+	return (a > b) ? a : b;
+}
+a = x>y ? x : y
+
+3.Use Loop Unrolling
+for(i=0;i<3;i++)
+	ab[i]=i; ???
+for(i=0;i<3;i+=2){
+	ab[i]=i;
+	ab[i+1]=i+1
+}	
+
+4.Use Sharing of common subexpression
+int b_minus_d=b-d;
+a= c*b_minus_d;
+e = b_minus_d*b_minus_d;

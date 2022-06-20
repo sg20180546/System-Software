@@ -1,0 +1,12 @@
+baz.txt
+cpstidn.c
+dir
+fdopen.c
+foobar.txt
+foo.txt
+main
+p1.c
+readdir.c
+sharingfile1.c
+sharingfile2.c
+statcheck.c

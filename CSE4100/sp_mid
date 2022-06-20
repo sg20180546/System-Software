@@ -1,0 +1,57 @@
+1. False , Trap is intentional
+
+2. False -> abort ?
+
+3.True
+
+4. program state which is not stopped or terminated. running program(process) can be stopped or teminated by signal
+->process
+
+5. Memory Virtualization
+
+6.False
+
+7.True
+IPC : pipe, message queue,mkfifo
+
+
+8. context switch mean cpu switch to run another process(thread) B during running process A.
+when context switch start, cpu save register(PC and else) value in PCB(TCB), which is in kernel, and then restore register value(PC and else) from PCB(TCB) of process(thread) B. and execute instruction from B's PC
+
+9.
+  fork()  B  C    exit
+A	  B  wait   C
+A-B-B-C-C
+A-B-C-B-C
+
+10. async-signal-safe 803p
+- access only local variable
+- reentrant : not static(global) var, not ref of static(global) var, only use argument
+-non-interruptible
+11.
+TCP-IP manager buffer
+
+12. three concurrent server approach
+1)process based
+-parent listenfd accept request, open connection fd
+-fork: parent close connection fd, child close listen fd
+-when child do all job, close connection fd and exit
+2)IO Multplexing
+-Run on single process : easy to handle sharing data
+-debuging easy
+-lots of code
+-not utilize multi-core processor
+-listen_fd, select : ready_set- byte(flag)
+check all 0~n connfd by loop : vulnerable to client sending partial text lot of time
+3)Thread based
+-race condition
+
+13. thread safe : protecting shared variable, function state is independent to invocations, do not return pointer of static var, not call thread-unsafe func
+
+14. thread safe function : reentrant? no, reentrant is not to use global(Static) variable in function, but thread safe function use those var with semaphore, which makes 
+
+race condition
+- corectness of program depends of order thread reaching point x before other thread reach y
+
+deadlock
+system runtime error. Assume that there is two coherent thread. thread need two locks, if only one locks gained, sleep. if each thread get only one lock, deadlock occur(two thread never get up) again
