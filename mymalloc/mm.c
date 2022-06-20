@@ -115,7 +115,6 @@ static bool bitmap_get(unsigned long* bitmap,int pos){
 
     return ( (bitmap[index])& (1UL<<(pos&31)));
 } 
-
 static bool bitmap_set(unsigned long *bitmap,int pos, bool set)
 {
     int index=BITMAP_INDEX(pos);
@@ -279,7 +278,6 @@ void *mm_malloc(size_t size)
  */
 void mm_free(void *ptr)
 {
-
 }
 
 /*
