@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "assert.h": "c",
+        "float.h": "c",
+        "config.h": "c",
+        "type_traits": "c"
+    }
+}

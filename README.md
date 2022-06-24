@@ -24,9 +24,19 @@
         - stock file format is "{ID} {COUNT} {PRICE}\n", saved at same path of server process.
         - when server boot, stock file is loaded on memory as shape as binary tree structure.
 
-## 3. CSE3030, CSE4040 is class material of Sogang University Computer Sci. Course.
+
+## 3-1. Mymalloc_buddy : Physical Memory allocating Simulator 
+- Based on Linux Kernel Buddy System, which allocate Page(4KB) to process
+- Mymalloc customization : Total 20MB Phiscal Memory,64 Byte Page size, 2^24 Byte Physical Area 
+- Total 65536 Pages, 16 Orders
+- But in malloc lab, Space utilization Performnace is mesured by static char* mem_brk which mean buddy system cannnot properly evalutated in mem lab
+
+## 3-2. Mymalloc_next fit
+- which is combined version of first fit and best fit
+
+## 4. CSE3030, CSE4040 is class material of Sogang University Computer Sci. Course.
 - CSE3030(Introduction of Computer System)
 - CSE4040(System Programming)
 
-## 4. excode
+## 5. excode
 - example code of CSAPP book.
