@@ -30,7 +30,7 @@
 - Total 65536 Pages, 16 Orders
 - But in malloc lab, Space utilization Performnace is mesured by static char* mem_brk which mean buddy system cannnot properly evalutated in mem lab
 
-## 4-2. Mymalloc_next fit
+## 3-2. Mymalloc_next fit
 - which is combined version of first fit and best fit
 
 ## 5. CSE3030, CSE4040 is class material of Sogang University Computer Sci. Course.
