@@ -3,6 +3,18 @@
 ## This repository is based on [CSAPP, Computer Systems: A Programmer's Perspective, Global Edition (3rd Edition)](https://csapp.cs.cmu.edu/).
 
 ## 1. Myshell project : Make my custom shell by linux system calls
+1) fork and execute
+
+![image](https://user-images.githubusercontent.com/81512075/182013592-4a958cd9-9b3b-430d-acda-f32053c0b16b.png)
+
+2) pipelining
+
+![image](https://user-images.githubusercontent.com/81512075/182013610-a41815dd-6b7f-43bd-8baa-ef8f0f09ed58.png)
+
+3) background job
+
+![image](https://user-images.githubusercontent.com/81512075/182013616-9378e46a-4161-4d51-a17d-51223da5b448.png)
+
 - Shell interpret user command, fork process, finally execute builtin command on forked process.
 - To enable IPC(interprocess communication), Signal and Pipe are used.
 - SIGCHLD,SIGTTOU,SIGTTIN,SIGTSTP,SIGINT is mainly-dealing-with signal.
@@ -18,6 +30,8 @@
         - N WORKER threads gain CONNETION FD from SBUF, and then do network communcation.
         - as This server use binary tree in heap, to prevent reader-writer problem, There are both lock of each node, and that of whole binary tree
 * 3) Benchmarking
+        ![image](https://user-images.githubusercontent.com/81512075/182013574-2dbe5d66-9330-4cca-af66-d48a6ed5a948.png)
+
         - you can test server throughput by /test/common_test/benchmark.c
         - to test, compile /client/multiclient_behchmark.c (just run make !)
 * 4) Common
@@ -26,6 +40,9 @@
 
 
 ## 3-1. Mymalloc_buddy : Physical Memory allocating Simulator 
+
+![image](https://user-images.githubusercontent.com/81512075/182013679-484345fe-d06b-4fba-aba0-7eca2d194a0e.png)
+
 - Based on Linux Kernel Buddy System, which allocate Page(4KB) to process
 - Mymalloc customization : Total 20MB Phiscal Memory,64 Byte Page size, 2^24 Byte Physical Area 
 - Total 65536 Pages, 16 Orders
