@@ -13,8 +13,8 @@
 #include "common.h"
 #include "execute.h"
 #include "builtin.h"
-#include "./module/jobs.h"
-#include "./module/cd.h"
+#include "jobs.h"
+#include "cd.h"
 
 
 void interpreter(char* cmdline);

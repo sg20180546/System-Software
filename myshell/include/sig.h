@@ -4,7 +4,7 @@
 #include "common.h"
 #include "type.h"
 #include "interperter.h"
-#include "./module/jobs.h"
+#include "jobs.h"
 
 #define SEND_CONTINUE(x) kill((x),SIGCONT)
 #define SEND_INT(x) kill((x),SIGINT)

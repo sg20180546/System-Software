@@ -1,7 +1,7 @@
 #include "builtin.h"
-#include "module/cd.h"
-#include "module/jobs.h"
-#include "module/exit.h"
+#include "cd.h"
+#include "jobs.h"
+#include "exit.h"
 
 int num_command=29;
 struct command command_list[]={
