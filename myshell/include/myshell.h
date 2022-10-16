@@ -4,7 +4,7 @@
 #include "common.h"
 #include "interperter.h"
 #include "builtin.h"
-#include "./module/jobs.h"
+#include "jobs.h"
 
 char cmdline[MAXLINE];
 
